@@ -53,7 +53,7 @@ class PdfService:
                 border=0,
             )
             validation_code = self.generate_validation_code(recipe_data['patient']['id'], recipe_data['medic']['id'], recipe_data['issue_date'])
-            validation_url = "http://127.0.0.1:5000/public/recipe?code=" + validation_code
+            validation_url = "https://specialcaredev.pythonanywhere.com/validate_recipe/" + validation_code
             qr.add_data(validation_url)
             qr.make(fit=True)
             

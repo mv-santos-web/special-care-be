@@ -540,6 +540,13 @@ class AdminService:
         except Exception as e:
             raise e
     
+    def get_prescription_by_validation(self, validation_code):
+        try:
+            prescription = db.session.query(Prescription).filter_by(validation_code=validation_code).first()
+            return prescription
+        except Exception as e:
+            raise e
+    
     def add_prescription(self, **kwargs):
         try:
             prescription = Prescription(**kwargs)
