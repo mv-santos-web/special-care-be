@@ -7,6 +7,7 @@ from app.routes.medic import blueprint as medic_bp
 from app.routes.nurse import blueprint as nurse_bp
 from app.routes.admin import blueprint as admin_bp
 from app.routes.api import blueprint as api_bp
+from app.routes.public import blueprint as public_bp
 
 from app.models import user, medic, patient, nurse, paramedic, medic_record, consult, prescription, emergency, nurse_request_emergency, nurse_request_consult
 
@@ -57,6 +58,7 @@ def create_app():
     app.register_blueprint(medic_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(public_bp)
     
     register_template_filters(app)
     
