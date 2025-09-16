@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receita Médica - {{ prescription_type }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @page {
+            margin: 0.5cm;
+            size: A4;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            color: #333;
+            background-color: #fff;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding-bottom: 7px;
+            border-bottom: 2px solid #2c3e50;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            width: 70% !important;
+        }
+        .logo {
+            max-width: 80px;
+            height: auto;
+            margin-right: 20px;
+        }
+        .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .clinic-info {
+            border-left: 2px solid #3498db;
+            padding-left: 15px;
+            width: 100% !important;
+        }
+        .clinic-info h2 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 1.4em;
+        }
+        .clinic-info p {
+            margin: 1px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .prescription-header {
+            text-align: right;
+        }
+        .prescription-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.6em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .prescription-header .subtitle {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .patient-info h3 {
+            margin: 0;
+        }
+        .patient-info p {
+            margin: 0px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .patient-info {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .prescription-info {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .prescription-info h3 {
+            margin: 0;
+        }
+        .prescription-info p {
+            margin: 0px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 5px;
+            margin: 20px 0 10px;
+            page-break-after: avoid;
+        }
+        .medicine {
+            margin-bottom: 15px;
+            padding: 10px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .medicine p {
+            margin: 5px 0;
+            word-break: break-word;
+        }
+        .observations {
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        .observations p {
+            white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .qrcode-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .qrcode-container img {
+            margin-top: 15px;
+            max-width: 200px;
+            height: auto;
+        }
+        .signature {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .signature p {
+            margin: 0px;
+            font-size: 1em;
+            color: #555;
+        }
+        .warning {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-bottom: 50px;
+        }
+        .warning p {
+            margin: 0px;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            {% if logo_data %}
+                <img src="data:image/png;base64,{{ logo_data }}" alt="Special Care Logo" class="logo">
+            {% else %}
+                <div class="logo-placeholder">
+                    <h2>Special Care</h2>
+                </div>
+            {% endif %}
+            <div class="clinic-info">
+                <h2>Special Care</h2>
+                <p>Clínica Médica Especializada</p>
+                <p>Rua Exemplo, 123 - Centro</p>
+                <p>Cidade/UF - CEP: 00000-000</p>
+                <p>Tel: (XX) XXXX-XXXX</p>
+            </div>
+        </div>
+        <div class="prescription-header">
+            <h1>RECEITA MÉDICA</h1>
+            <div class="subtitle">{% if prescription_type == 'Normal' %}Comum{% else %}Controlada{% endif %}</div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; flex-direction: row;">
+        <div class="patient-info">
+            <h3>Dados do Paciente</h3>
+            <p><strong>Nome:</strong> {{ patient.fullname }}</p>
+            <p><strong>Idade:</strong> {{ patient.age }} anos</p>
+            <p><strong>CPF:</strong> {{ patient.cpf }}</p>
+            <p><strong>Data de Nascimento:</strong> {{ patient.birthdate }}</p>
+        </div>
+    
+        <div class="prescription-info">
+            <h3>Dados do Médico</h3>
+            <p><strong>Nome:</strong> {{ medic.fullname }}</p>
+            <p><strong>CRM:</strong> {{ medic.crm }}</p>
+            <p><strong>CPF:</strong> {{ medic.cpf }}</p>
+            <p><strong>Data/Hora de Emissão:</strong> {{ issue_date }}</p>
+        </div>
+    </div>
+    
+
+    <h3 class="section-title">Medicamentos</h3>
+    {% for medicine in medicines %}
+    <div class="medicine">
+        <p>Medicamento: <strong>{{ medicine.name }}</strong> ({{ medicine.strength }})</p>
+        <p>Posologia: <strong>{{ medicine.dosage }}</strong></p>
+        <p>Quantidade: <strong>{{ medicine.quantity }} {{ medicine.unit }}</strong></p>
+        <p>Uso: <strong>{{ medicine.usage }}</strong></p>
+        {% if medicine.observations %}
+        <p>Observações: <strong>{{ medicine.observations }}</strong></p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if observations %}
+    <div class="observations">
+        <h3 class="section-title">Observações</h3>
+        <div class="observations-content">
+            {{ observations | replace('\n', '<br>') | safe }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="signature">
+        <p>{{ medic.fullname }}</p>
+        <p>{{ medic.crm }}</p>
+    </div>
+
+    <div class="qrcode-container">
+        <p style="margin-bottom: 1px;">Este documento pode ser validado através do QR Code abaixo:</p>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code de Validação">
+    </div>
+
+    {% if prescription_type == 'Controlada' %}
+    <div class="warning">
+        <p>Esta receita médica é de uso pessoal e não pode ser transferida para outra pessoa, nem pode ser reproduzida ou adulterada.</p>
+        <p>Quem forneceu esta receita não se responsabiliza por sua utilização.</p>
+        <p>Este documento possui validade de 30 dias a partir da data de emissão conforme legislação lei 12.752/2013.</p>
+    </div>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+{% extends 'includes/layout.html' %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-[var(--blueDark)]">Visão Geral</h1>
+    <p class="text-gray-600">Dados e estatísticas do sistema</p>
+</div>
+
+<!-- Main Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Patients Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total de Pacientes</p>
+                    <h3 class="text-2xl font-bold mt-1" id="total-patients">0</h3>
+                    <p class="text-blue-500 text-sm mt-2">
+                        <span id="new-patients">0</span> este mês • 
+                        <span id="active-patients">0</span> ativos
+                    </p>
+                </div>
+                <div class="p-3 rounded-lg bg-blue-50 text-blue-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consults Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total de Consultas</p>
+                    <h3 class="text-2xl font-bold mt-1" id="total-consults">0</h3>
+                    <p class="text-orange-500 text-sm mt-2">
+                        <span id="consults-today">0</span> hoje • 
+                        <span id="consults-pending">0</span> pendentes
+                    </p>
+                </div>
+                <div class="p-3 rounded-lg bg-orange-50 text-orange-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergencies Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total de Emergências</p>
+                    <h3 class="text-2xl font-bold mt-1" id="total-emergencies">0</h3>
+                    <p class="text-red-500 text-sm mt-2">
+                        <span id="emergencies-today">0</span> hoje • 
+                        <span id="emergencies-pending">0</span> pendentes
+                    </p>
+                </div>
+                <div class="p-3 rounded-lg bg-red-50 text-red-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescriptions Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total de Receitas</p>
+                    <h3 class="text-2xl font-bold mt-1" id="total-prescriptions">0</h3>
+                    <p class="text-green-500 text-sm mt-2">
+                        <span id="recipes-signed">0</span> assinadas
+                    </p>
+                </div>
+                <div class="p-3 rounded-lg bg-green-50 text-green-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Weekly Consults Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold mb-4">Consultas na Semana</h3>
+        <div class="h-64">
+            <canvas id="consultsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Emergency Status Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold mb-4">Status das Emergências</h3>
+        <div class="h-64">
+            <canvas id="emergenciesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Consult Types Section -->
+<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+    <h3 class="text-lg font-semibold mb-4">Tipos de Consulta</h3>
+    <div class="space-y-3" id="consult-types">
+        <div>
+            <div class="flex justify-between text-sm mb-1">
+                <span class="font-medium">Exames</span>
+                <span class="text-gray-500">0 consultas</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Color palette
+const colors = {
+    orange: 'rgba(244, 110, 36, 1)',
+    orangeLight: 'rgba(244, 110, 36, 0.1)',
+    blue: 'rgba(30, 68, 113, 1)',
+    blueLight: 'rgba(30, 68, 113, 0.1)',
+    red: 'rgba(220, 38, 38, 1)',
+    redLight: 'rgba(220, 38, 38, 0.1)',
+    green: 'rgba(5, 150, 105, 1)',
+    greenLight: 'rgba(5, 150, 105, 0.1)',
+    gray: 'rgba(156, 163, 175, 1)',
+    grayLight: 'rgba(243, 244, 246, 1)',
+    gridLine: 'rgba(0, 0, 0, 0.05)'
+};
+
+// Initialize charts when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize consults chart
+    const consultsCtx = document.getElementById('consultsChart').getContext('2d');
+    const weekDays = Object.keys({"": ""});
+    const consultCounts = Object.values({"": 0});
+    
+    new Chart(consultsCtx, {
+        type: 'bar',
+        data: {
+            labels: weekDays,
+            datasets: [{
+                label: 'Consultas',
+                data: consultCounts,
+                backgroundColor: colors.blue,
+                borderRadius: 6,
+                barThickness: 16,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: colors.gridLine
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize emergencies chart
+    const emergenciesCtx = document.getElementById('emergenciesChart').getContext('2d');
+    const emergencyStatuses = {"": ""};
+    
+    new Chart(emergenciesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: emergencyStatuses.map(item => item.status),
+            datasets: [{
+                data: emergencyStatuses.map(item => item.count),
+                backgroundColor: [
+                    colors.orange,
+                    colors.blue,
+                    colors.greenLight,
+                    colors.red,
+                    colors.gray
+                ].slice(0, emergencyStatuses.length),
+                borderWidth: 0,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 6,
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

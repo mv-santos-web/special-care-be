@@ -1,0 +1,254 @@
+<aside id="sidebar" class="sidebar bg-white w-64 min-h-screen border-r border-gray-200 flex-shrink-0 transition-all duration-300 transform -translate-x-full md:translate-x-0 fixed md:static inset-y-0 left-0 z-40">
+    <div class="p-4">
+        <div class="mb-8 px-4">
+            <h2 class="text-xl font-bold text-[var(--blueDark)]">Menu</h2>
+        </div>
+        <nav class="flex-1 overflow-y-auto h-[calc(100vh-128px)] overflow-hidden mb-8">
+            {% if current_user.type == 'admin' %}
+            <!-- Dashboard -->
+            <a href="{{ url_for('admin.index') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('admin.index') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+
+            <!-- Médicos -->
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Usuários</h3>
+            </div>
+            
+            <a href="{{ url_for('admin.get_admins') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_admins' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Administradores
+            </a>
+            
+            <a href="{{ url_for('admin.get_medics') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_medics' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+                Médicos
+            </a>
+            
+            <a href="{{ url_for('admin.get_nurses') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_nurses' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M20 22v-3c0-2.828 0-4.243-.879-5.121C18.243 13 16.828 13 14 13l-2 2l-2-2c-2.828 0-4.243 0-5.121.879C4 14.757 4 16.172 4 19v3M15.5 6.5v-1a3.5 3.5 0 1 0-7 0v1a3.5 3.5 0 1 0 7 0M16 16v3m1.5-1.5h-3"
+                        color="currentColor" />
+                </svg>
+                Enfermeiros
+            </a>
+            
+            <a href="{{ url_for('admin.get_paramedics') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_paramedics' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 14 14">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        d="m13.5 5.51l-1.96-3.392l-2.58 1.49V.628H5.04v2.98l-2.58-1.49L.5 5.51L3.078 7L.5 8.49l1.96 3.392l2.58-1.49v2.98h3.92v-2.98l2.58 1.49L13.5 8.49L10.922 7z" />
+                </svg>
+                Paramédicos
+            </a>
+
+            <a href="{{ url_for('admin.get_patients') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_patients' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Pacientes
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Atendimentos</h3>
+            </div>
+
+            <a href="{{ url_for('admin.get_consults') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_consults' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 14 14">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M13 1.25H1a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5m-7 9l-1 2.5m3-2.5l1 2.5m-5 0h6" />
+                        <path
+                            d="M6.302 2.986a.43.43 0 0 0-.43.43v1.207H4.666a.43.43 0 0 0-.43.43v1.395c0 .237.193.43.43.43h1.208v1.207c0 .237.192.43.43.43h1.395a.43.43 0 0 0 .43-.43V6.877h1.207a.43.43 0 0 0 .43-.43V5.053a.43.43 0 0 0-.43-.43H8.127V3.416a.43.43 0 0 0-.43-.43H6.303Z" />
+                    </g>
+                </svg>
+                Consultas
+            </a>
+
+            <a href="{{ url_for('admin.get_emergencies') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_emergencies' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 512 448" stroke="currentColor">
+                    <path fill="currentColor"
+                        d="M405 85h-42V43q0-18-13-30.5T320 0H43Q25 0 12.5 12.5T0 43v256q0 17 12.5 29.5T43 341h4q6 19 22.5 31t37.5 12q20 0 36.5-12t22.5-31h180q6 19 22.5 31t36.5 12q21 0 37.5-12t22.5-31h4q18 0 30.5-12.5T512 299v-77q0-17-13-30zM107 341q-8 0-15-6.5T85 320t7-14.5t15-6.5t14.5 6.5T128 320t-6.5 14.5T107 341zm213-42H166q-6-19-22.5-31T107 256q-21 0-37.5 12T47 299h-4V43h277v256zm85 42q-8 0-14.5-6.5T384 320t6.5-14.5T405 299t15 6.5t7 14.5t-7 14.5t-15 6.5zm64-42h-4q-6-19-22.5-31T405 256q-27 0-42 17V128h12l94 94v77zm-298-86h42v-42h43v-43h-43V85h-42v43h-43v43h43v42z" />
+                </svg>
+                Emergências
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Prescrições/Prontuários</h3>
+            </div>
+
+            <a href="{{ url_for('admin.get_prescriptions') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_prescriptions' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M6 3v11h1.367L8 12.42V5h10v6h6v16H8v-5.754l-.053-.053L6.756 20H6v9h20V9.594l-.281-.313l-6-6L19.406 3H6zm14 3.438L22.563 9H20V6.437zm-9.031 3.949l-2.336 5.832L8.414 16H2v2h5.586l1.777 1.781l1.668-4.168l3 7l2.07-5.175l.282.562h1.887a2 2 0 1 0 0-2h-.653l-1.719-3.438l-1.93 4.825l-3-7z"/></svg>
+                Prescrições
+            </a>
+
+            <a href="{{ url_for('admin.get_medical_records') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'admin.get_medical_records' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M19 9V7.818c0-1.693 0-2.54-.252-3.216a4 4 0 0 0-2.35-2.35C15.722 2 14.875 2 13.182 2c-2.963 0-4.445 0-5.628.441A7 7 0 0 0 3.44 6.554C3 7.737 3 9.219 3 12.182v2.545c0 3.07 0 4.604.798 5.67a4 4 0 0 0 .805.805c1.066.798 2.6.798 5.67.798H14.5"/><path d="M11 14.333h.84c.662 0 .993 0 1.258.175c.266.174.414.488.71 1.115L15.4 19l2.2-7l1.592 3.377c.296.627.444.941.71 1.115s.596.175 1.258.175H22M3 12a3.333 3.333 0 0 1 3.333-3.333h1.111c.517 0 .775 0 .987-.057A1.67 1.67 0 0 0 9.61 7.43c.057-.212.057-.47.057-.987v-1.11A3.333 3.333 0 0 1 13 2"/></g></svg>
+                Prontuários
+            </a>
+
+            {% elif current_user.type == 'nurse' %}
+
+            <a href="{{ url_for('nurse.index') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('nurse.index') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Atendimentos</h3>
+            </div>
+
+            <a href="{{ url_for('nurse.get_requests_consults') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'nurse.get_requests_consults' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 512 512">
+                    <path fill="currentColor"
+                        d="M256 32C114.62 32 0 125.12 0 240c0 49.56 21.41 95 57 130.74C44.46 421.05 2.7 466 2.2 466.5A8 8 0 0 0 8 480c66.26 0 116-31.75 140.6-51.38A304.66 304.66 0 0 0 256 448c141.39 0 256-93.12 256-208S397.39 32 256 32zm96 232a8 8 0 0 1-8 8h-56v56a8 8 0 0 1-8 8h-48a8 8 0 0 1-8-8v-56h-56a8 8 0 0 1-8-8v-48a8 8 0 0 1 8-8h56v-56a8 8 0 0 1 8-8h48a8 8 0 0 1 8 8v56h56a8 8 0 0 1 8 8z" />
+                </svg>
+                Solicitações de Consultas
+            </a>
+
+            <a href="{{ url_for('nurse.get_req_emergencies')}}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'nurse.get_req_emergencies' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M11.5 4.846v-3h1v3h-1ZM7.921 6.06L5.633 3.77l.713-.713l2.289 2.288l-.714.714ZM6.577 17.423h2.692q.31 0 .52-.21q.211-.21.211-.52q0-.31-.21-.52t-.52-.211H6.576v1.461Zm8.154 0h2.692v-1.461h-2.692q-.31 0-.52.21q-.211.21-.211.52q0 .31.21.52t.52.211ZM16.6 11l3.149-3.142l-.627-.627l-2.521 2.51l-1.11-1.11l-.627.632L16.602 11Zm.707 1.98q-1.671 0-2.836-1.164t-1.164-2.835q0-1.671 1.164-2.836q1.165-1.164 2.836-1.164t2.835 1.164q1.165 1.165 1.165 2.836t-1.165 2.835q-1.164 1.165-2.835 1.165ZM4.5 22q-.213 0-.356-.144T4 21.5v-7.346L5.985 8.5q.073-.238.281-.37q.209-.13.465-.13h3.192V6.462h1.564q-.274.58-.419 1.203q-.145.623-.145 1.316V9H6.888l-1.61 4.385h7.44q.903.944 2.086 1.462t2.504.518q.704 0 1.383-.152q.68-.153 1.309-.446V21.5q0 .213-.144.356T19.5 22h-.23q-.213 0-.357-.144t-.144-.356V20H5.231v1.5q0 .213-.144.356T4.731 22H4.5Z"/>
+                </svg>
+                Solicitações de Emergência
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Prontuários/Prescrições</h3>
+            </div>
+
+            <a href="{{ url_for('nurse.get_medical_records') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'nurse.get_medical_records' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M19 9V7.818c0-1.693 0-2.54-.252-3.216a4 4 0 0 0-2.35-2.35C15.722 2 14.875 2 13.182 2c-2.963 0-4.445 0-5.628.441A7 7 0 0 0 3.44 6.554C3 7.737 3 9.219 3 12.182v2.545c0 3.07 0 4.604.798 5.67a4 4 0 0 0 .805.805c1.066.798 2.6.798 5.67.798H14.5"/><path d="M11 14.333h.84c.662 0 .993 0 1.258.175c.266.174.414.488.71 1.115L15.4 19l2.2-7l1.592 3.377c.296.627.444.941.71 1.115s.596.175 1.258.175H22M3 12a3.333 3.333 0 0 1 3.333-3.333h1.111c.517 0 .775 0 .987-.057A1.67 1.67 0 0 0 9.61 7.43c.057-.212.057-.47.057-.987v-1.11A3.333 3.333 0 0 1 13 2"/></g></svg>
+                Prontuários
+            </a>
+
+            {% elif current_user.type == 'medic' %}
+
+            <a href="{{ url_for('medic.index') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('medic.index') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Inicio
+            </a>
+            
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Painel de Solicitações</h3>
+            </div>
+
+            <a href="{{ url_for('medic.get_requests_care') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.endpoint == 'medic.get_requests_care' %}bg-gray-100 text-[var(--orange)]{% else %}text-gray-700{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 512 512">
+                    <path fill="currentColor"
+                        d="M256 32C114.62 32 0 125.12 0 240c0 49.56 21.41 95 57 130.74C44.46 421.05 2.7 466 2.2 466.5A8 8 0 0 0 8 480c66.26 0 116-31.75 140.6-51.38A304.66 304.66 0 0 0 256 448c141.39 0 256-93.12 256-208S397.39 32 256 32zm96 232a8 8 0 0 1-8 8h-56v56a8 8 0 0 1-8 8h-48a8 8 0 0 1-8-8v-56h-56a8 8 0 0 1-8-8v-48a8 8 0 0 1 8-8h56v-56a8 8 0 0 1 8-8h48a8 8 0 0 1 8 8v56h56a8 8 0 0 1 8 8z" />
+                </svg>
+                Solicitações de Consultas
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Prontuários/Receitas</h3>
+            </div>
+
+            <a href="{{ url_for('medic.get_medical_records') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('medic.get_medical_records') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M19 9V7.818c0-1.693 0-2.54-.252-3.216a4 4 0 0 0-2.35-2.35C15.722 2 14.875 2 13.182 2c-2.963 0-4.445 0-5.628.441A7 7 0 0 0 3.44 6.554C3 7.737 3 9.219 3 12.182v2.545c0 3.07 0 4.604.798 5.67a4 4 0 0 0 .805.805c1.066.798 2.6.798 5.67.798H14.5"/><path d="M11 14.333h.84c.662 0 .993 0 1.258.175c.266.174.414.488.71 1.115L15.4 19l2.2-7l1.592 3.377c.296.627.444.941.71 1.115s.596.175 1.258.175H22M3 12a3.333 3.333 0 0 1 3.333-3.333h1.111c.517 0 .775 0 .987-.057A1.67 1.67 0 0 0 9.61 7.43c.057-.212.057-.47.057-.987v-1.11A3.333 3.333 0 0 1 13 2"/></g></svg>
+                Prontuários
+            </a>
+
+            <a href="{{ url_for('medic.get_prescriptions') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('medic.get_prescriptions') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M6 3v11h1.367L8 12.42V5h10v6h6v16H8v-5.754l-.053-.053L6.756 20H6v9h20V9.594l-.281-.313l-6-6L19.406 3H6zm14 3.438L22.563 9H20V6.437zm-9.031 3.949l-2.336 5.832L8.414 16H2v2h5.586l1.777 1.781l1.668-4.168l3 7l2.07-5.175l.282.562h1.887a2 2 0 1 0 0-2h-.653l-1.719-3.438l-1.93 4.825l-3-7z"/></svg>
+                Prescrições
+            </a>
+
+            <div class="mt-4 mb-2 px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gestão de Consultas</h3>
+            </div>
+            
+            <a href="{{ url_for('medic.get_consults') }}"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 group {% if request.path == url_for('medic.get_consults') %}bg-gray-100 text-[var(--orange)] font-medium{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 14 14">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M13 1.25H1a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5m-7 9l-1 2.5m3-2.5l1 2.5m-5 0h6" />
+                        <path
+                            d="M6.302 2.986a.43.43 0 0 0-.43.43v1.207H4.666a.43.43 0 0 0-.43.43v1.395c0 .237.193.43.43.43h1.208v1.207c0 .237.192.43.43.43h1.395a.43.43 0 0 0 .43-.43V6.877h1.207a.43.43 0 0 0 .43-.43V5.053a.43.43 0 0 0-.43-.43H8.127V3.416a.43.43 0 0 0-.43-.43H6.303Z" />
+                    </g>
+                </svg>
+                Consultas
+            </a>
+            
+            {% endif %}
+        </nav>
+        
+    </div>
+</aside>
+
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+<script>
+    // Toggle mobile menu
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuButton = document.getElementById('mobile-menu-button');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (menuButton && sidebar) {
+            menuButton.addEventListener('click', function () {
+                sidebar.classList.toggle('translate-x-0');
+                overlay.classList.toggle('hidden');
+                document.body.classList.toggle('overflow-hidden');
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('translate-x-0');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            });
+        }
+
+        // Close sidebar when clicking on a link
+        const navLinks = document.querySelectorAll('#sidebar a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                sidebar.classList.remove('translate-x-0');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            });
+        });
+    });
+</script>

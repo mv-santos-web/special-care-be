@@ -1,0 +1,705 @@
+{% extends "includes/layout.html" %}
+{% block title %}Consultas{% endblock %}
+{% block styles %}
+    <style>
+        .dataTables_length
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+        }
+        .dataTables_length select
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+            margin-left: 5px;  
+            margin-right: 5px;
+            padding: 2px;
+            border-radius: 10px !important;
+            border: 1px solid var(--orange) !important;
+            text-align: center;
+        }
+
+        .dataTables_filter input
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+            margin-left: 5px;  
+            margin-right: 5px;
+            padding: 3px;
+            border-radius: 10px !important;
+            border: 1px solid var(--orange) !important;
+        }
+
+        .dataTables_info 
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+        }
+
+        /* Pagination Container */
+        .dataTables_paginate {
+            margin: 0;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Pagination Buttons */
+        .dataTables_paginate .paginate_button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--blueDark);
+            border: 1px solid var(--orange);
+            border-radius: 0.375rem !important;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        /* Hover State */
+        .dataTables_paginate .paginate_button:hover {
+            background-color: var(--orange);
+            color: white !important;
+            border-color: var(--orange);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Active/Current Page */
+        .dataTables_paginate .paginate_button.current,
+        .dataTables_paginate .paginate_button.current:hover {
+            background-color: var(--orange);
+            color: white !important;
+            border-color: var(--orange);
+            font-weight: 800;
+        }
+
+        /* Disabled Buttons */
+        .dataTables_paginate .paginate_button.disabled,
+        .dataTables_paginate .paginate_button.disabled:hover,
+        .dataTables_paginate .paginate_button.disabled:active {
+            color: var(--orange) !important;
+            background-color: var(--orange) !important;
+            border-color: var(--orange) !important;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Navigation Buttons (Previous/Next) */
+        .dataTables_paginate .paginate_button.previous,
+        .dataTables_paginate .paginate_button.next {
+            background-color: #f0f0f0 !important;
+            border: 1px solid var(--orange) !important;
+            color: var(--blueDark) !important;
+            font-weight: 800;
+            border-radius: 0.375rem !important;
+        }
+
+        .dataTables_paginate .paginate_button.previous:hover,
+        .dataTables_paginate .paginate_button.next:hover {
+            background-color: var(--orange) !important;
+            color: white !important;
+            border-color: var(--blueDark) !important;
+        }
+
+        /* Ellipsis */
+        .dataTables_paginate .ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--orange);
+        }
+
+
+
+
+
+    </style>
+{% endblock %}
+    
+{% block content %}
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-[var(--blueDark)]">Consultas</h1>
+        <p class="text-gray-600">Gerencie as consultas</p>
+    </div>
+    
+    <!-- Add New Admin Button -->
+    <div>
+        <button id="addRequestCareBtn" class="bg-[var(--orange)] hover:bg-[var(--orangeDark)] text-white px-4 py-2 rounded-lg flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Nova Consulta 
+        </button>
+    </div>
+</div>
+
+<!-- Admins Table -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4">
+        <table id="requestsCareTable" class="w-full">
+            <thead>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Data will be loaded via AJAX -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Admin Modal -->
+<div id="viewRequestCareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Detalhes da Consulta</h3>
+                <button onclick="closeModal('viewRequestCareModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Paciente</label>
+                    <p id="view-patient-fullname" class="mt-1 text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Observações</label>
+                    <p id="view-observations" class="mt-1 text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Status</label>
+                    <p id="view-status" class="mt-1"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Data</label>
+                    <p id="view-date" class="mt-1 text-gray-900"></p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('viewRequestCareModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Admin Modal -->
+<div id="editRequestCareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form id="editRequestCareForm" class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Editar Consulta</h3>
+                <button type="button" onclick="closeModal('editRequestCareModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <input type="hidden" id="edit-id" name="id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="edit-patient" class="block text-sm font-medium text-gray-700">Paciente *</label>
+                    <select id="edit-patient" name="patient_id" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um paciente</option>
+                        {% for patient in patients %}
+                            <option value="{{ patient.id }}">{{ patient.fullname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="edit-date" class="block text-sm font-medium text-gray-700">Data</label>
+                    <input type="datetime-local" id="edit-date" name="date" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div class="col-span-2">
+                    <label for="edit-consult_type" class="block text-sm font-medium text-gray-700">Tipo de Consulta</label>
+                    <select id="edit-consult_type" name="consult_type" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um tipo de consulta</option>
+                        <option value="teleatendimento">Teleatendimento</option>
+                        <option value="residencial">Residencial</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label for="edit-observations" class="block text-sm font-medium text-gray-700">Observações</label>
+                    <textarea id="edit-observations" name="observations"
+                        class="mt-1 p-2 block w-full h-[20vh] rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"></textarea>
+                </div> 
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('editRequestCareModal')" 
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--orange)] hover:bg-[var(--orangeDark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--orange)]">
+                    Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div id="addRequestCareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form id="addRequestCareForm" class="p-6" action="{{ url_for('nurse.add_consult_nurse') }}" method="post" enctype="multipart/form-data">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Nova Consulta</h3>
+                <button type="button" onclick="closeModal('addRequestCareModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="patient_id" class="block text-sm font-medium text-gray-700">Paciente *</label>
+                    <select id="patient_id" name="patient_id" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um paciente</option>
+                        {% for patient in patients %}
+                            <option value="{{ patient.id }}">{{ patient.fullname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="date" class="block text-sm font-medium text-gray-700">Data *</label>
+                    <input type="datetime-local" id="date" name="date" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div class="col-span-2">
+                    <label for="consult_type" class="block text-sm font-medium text-gray-700">Tipo de Consulta *</label>
+                    <select id="consult_type" name="consult_type" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um tipo de consulta</option>
+                        <option value="teleatendimento">Teleatendimento</option>
+                        <option value="residencial">Residencial</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <div>
+                    <label for="observations" class="block text-sm font-medium text-gray-700">Observações</label>
+                    <textarea id="observations" name="observations"
+                        class="w-full h-[20vh] mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"></textarea>
+                </div>
+            </div>
+    
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('addRequestCareModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--orange)] hover:bg-[var(--orangeDark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--orange)]">
+                    Adicionar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-center text-gray-900">Tem certeza?</h3>
+            <div class="mt-2 text-sm text-gray-500 text-center">
+                <p>Você realmente deseja desativar este pedido? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="mt-5 flex justify-center space-x-3">
+                <button type="button" onclick="closeModal('deleteModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Sim, desativar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dataTable;
+    let requestCareToDelete = null;
+
+    // Estilos para drag and drop
+    const style = document.createElement('style');
+    style.textContent = `
+        .upload-container {
+            transition: all 0.2s ease-in-out;
+        }
+        .upload-container.drag-over {
+            border-color: var(--orange);
+            background-color: rgba(251, 146, 60, 0.1);
+        }
+        .file-uploaded {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 0.375rem;
+            margin-top: 0.5rem;
+        }
+        .file-uploaded svg {
+            color: #22c55e;
+            margin-right: 0.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Função para aplicar máscaras
+    function applyMasks() {
+        // Máscara para telefone (00) 00000-0000
+        $('#phone').mask('(00) 00000-0000');
+        
+        // Máscara para CPF 000.000.000-00
+        $('#cpf').mask('000.000.000-00');
+        
+    }
+
+    function formatDate(dateString) {
+        const [datePart, timePart] = dateString.split(' ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hours, minutes, seconds] = timePart.split(':').map(Number);
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    $(document).ready(function() {
+        // Aplicar máscaras quando o documento estiver pronto
+        applyMasks();
+        
+        // Reaplicar máscaras quando o modal for aberto
+        $('#addRequestCareModal').on('shown.bs.modal', function () {
+            applyMasks();
+        });
+
+        // Initialize DataTable with server-side processing disabled
+        dataTable = $('#requestsCareTable').DataTable({
+            data: {{ requests_consult | tojson | safe }},
+            columnDefs: [
+                {
+                    targets: [6],
+                    className: 'text-center'
+                }
+            ],
+            columns: [
+                { 
+                    data: 'id',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900',
+                    visible: false  // Hide ID column by default
+                },
+                { 
+                    data: 'patient.fullname',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900',
+                    title: 'Paciente'
+                },
+                { 
+                    data: 'consult_type',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Tipo de Consulta',
+                    render: function(data) {
+                        return data === 'teleatendimento' ? 'Teleatendimento' : 'Residencial' || 'N/A';
+                    }
+                },
+                { 
+                    data: 'observations',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Observações',
+                    render: function(data) {
+                        if (data?.length > 20) {
+                            return data.substring(0, 20) + '...';
+                        }
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'status',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Status',
+                    render: function(data, type, row) {
+
+                        if (data === 'pending') {
+                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pendente</span>';
+                        }
+
+                        if (data === 'accepted') {
+                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Aceito</span>';
+                        }
+
+                        if (data === 'rejected') {
+                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Recusado</span>';
+                        }
+
+                        if (data === 'completed') {
+                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Concluído</span>';
+                        }
+
+                        if (data === 'cancelled') {
+                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelado</span>';
+                        }
+                    }
+                },
+                { 
+                    data: 'date',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Data',
+                    width: '15%',
+                    render: function(data, type, row) {
+                        return data;
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-center',
+                    title: 'Ações',
+                    width: '10%',
+                    render: function(data, type, row) {
+                        // Ensure we have a valid row ID
+                        if (!row || row.id === undefined) return '';
+                        
+                        return `
+                            <div class="flex justify-center space-x-3">
+                                <button onclick="viewRequestCare(${row.id}); return false;" 
+                                    class="text-blue-600 hover:text-blue-800 transition-colors" 
+                                    title="Visualizar">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <button onclick="editRequestCare(${row.id}); return false;" 
+                                    class="text-yellow-600 hover:text-yellow-800 transition-colors" 
+                                    title="Editar">
+                                    <i class="far fa-edit"></i>
+                                </button>
+                                <button onclick="confirmDelete(${row.id}); return false;" 
+                                    class="text-red-600 hover:text-red-800 transition-colors" 
+                                    title="Excluir">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            ],
+            responsive: true,
+            order: [[5, 'desc']], // Sort by created_at by default
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json',
+                search: '_INPUT_',
+                searchPlaceholder: 'Buscar...',
+                lengthMenu: 'Mostrar _MENU_ itens por página',
+                zeroRecords: 'Nenhum registro encontrado',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_ itens',
+                infoEmpty: 'Mostrando 0 a 0 de 0 itens',
+                infoFiltered: '(filtrado de _MAX_ itens no total)',
+                paginate: {
+                    first: "<<",
+                    last: ">>",
+                    next: ">",
+                    previous: "<"
+                }
+            },
+            dom: "<'flex flex-col md:flex-row md:items-center md:justify-between mb-4'<'mb-4 md:mb-0'l><'md:ml-auto'f>>" +
+                 "<'overflow-x-auto rounded-lg border border-gray-200'rt>" +
+                 "<'flex flex-col md:flex-row items-center justify-between mt-4'<'mb-4 md:mb-0'i><'flex space-x-2'p>>",
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'Todos']],
+            
+        });
+
+        $('#addRequestCareBtn').click(function() {
+            $('#addRequestCareForm')[0].reset();
+            openModal('addRequestCareModal');
+        });
+        
+        $('#editRequestCareForm').on('submit', function(e) {
+            e.preventDefault();
+            const requestCareId = $('#edit-id').val();
+            const formData = $(this).serialize();
+            console.log("FormData:", formData);
+
+            const postData = {
+                medic_id: $('#edit-medic').val(),
+                patient_id: $('#edit-patient').val(),
+                consult_type: $('#edit-consult_type').val(),
+                status: $('#edit-status').val(),
+                observations: $('#edit-observations').val(),
+                date: $('#edit-date').val(),
+            }
+
+            $.ajax({
+                url: `/nurse/consult/edit/${requestCareId}`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(postData),
+                success: function(response) {
+                    closeModal('editRequestCareModal');
+                    window.location.reload();
+                    return;
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao atualizar pedido de cuidado', 'error');
+                    return;
+                }
+            });
+        });
+
+        $('#confirmDeleteBtn').click(function() {
+            if (!requestCareToDelete) return;
+            
+            $.ajax({
+                url: `/nurse/consult/delete/${requestCareToDelete}`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: {},
+                success: function(response) {
+                    closeModal('deleteModal');
+                    window.location.reload();
+                    requestCareToDelete = null;
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao deletar pedido de cuidado', 'error');
+                }
+            });
+        });
+    
+    });
+
+    function openModal(modalId) {
+        $(`#${modalId}`).removeClass('hidden').addClass('flex');
+        $('body').addClass('overflow-hidden');
+    }
+
+    function closeModal(modalId) {
+        $(`#${modalId}`).addClass('hidden').removeClass('flex');
+        $('body').removeClass('overflow-hidden');
+    }
+
+    function viewRequestCare(requestCareId) {
+        $.ajax({
+            url: `/nurse/consult/${requestCareId}`,
+            type: 'GET',
+            success: function(response) {
+                const requestCare = response;
+                $('#view-patient-fullname').text(requestCare.patient.fullname);
+                $('#view-nurse-fullname').text(requestCare.nurse?.fullname || 'N/A');
+                $('#view-observations').text(requestCare.observations);
+                $('#view-date').text(requestCare.date);
+                $('#view-consult_type').text(requestCare.consult_type);
+                const statusElement = $('#view-status span');
+                statusElement.removeClass('bg-green-100 text-green-800 bg-red-100 text-red-800');
+        
+                if (requestCare.status === 'pending') {
+                    statusElement.addClass('bg-yellow-100 text-yellow-800').text('Pendente');
+                } else if (requestCare.status === 'accepted') {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Aceito');
+                } else if (requestCare.status === 'rejected') {
+                    statusElement.addClass('bg-red-100 text-red-800').text('Recusado');
+                } else if (requestCare.status === 'completed') {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Concluído');
+                } else if (requestCare.status === 'cancelled') {
+                    statusElement.addClass('bg-red-100 text-red-800').text('Cancelado');
+                } else if (requestCare.status === 'in_progress') {
+                    statusElement.addClass('bg-yellow-100 text-yellow-800').text('Em progresso');
+                } else if (requestCare.status === 'completed') {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Concluído');
+                } else {
+                    statusElement.addClass('bg-gray-100 text-gray-800').text('Status desconhecido');
+                }
+        
+                openModal('viewRequestCareModal');
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON || {};
+                showToast(error.message || 'Erro ao visualizar pedido de cuidado', 'error');
+            }
+        });
+    }
+
+    function editRequestCare(requestCareId) {
+        $("#edit-id").val(requestCareId);
+        $.ajax({
+            url: `/nurse/consult/${requestCareId}`,
+            type: 'GET',
+            success: function(response) {
+                const requestCare = response;
+                $('#edit-id').val(requestCare.id);
+                $('#edit-patient').val(requestCare.patient_id);
+                $('#edit-nurse').val(requestCare.nurse_id);
+                $('#edit-observations').val(requestCare.observations);
+                $('#edit-status').val(requestCare.status);
+                $('#edit-date').val(formatDate(requestCare.date));
+                $('#edit-consult_type').val(requestCare.consult_type);
+    
+                openModal('editRequestCareModal');
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON || {};
+                showToast(error.message || 'Erro ao carregar dados do pedido de cuidado', 'error');
+            }
+        });
+    }
+
+    function confirmDelete(requestCareId) {
+        requestCareToDelete = requestCareId;
+        openModal('deleteModal');
+    }
+    
+    // Toggle password visibility
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,899 @@
+{% extends "includes/layout.html" %}
+{% block title %}Enfermeiros{% endblock %}
+{% block styles %}
+    <style>
+        .dataTables_length
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+        }
+        .dataTables_length select
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+            margin-left: 5px;  
+            margin-right: 5px;
+            padding: 2px;
+            border-radius: 10px !important;
+            border: 1px solid var(--orange) !important;
+            text-align: center;
+        }
+
+        .dataTables_filter input
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+            margin-left: 5px;  
+            margin-right: 5px;
+            padding: 3px;
+            border-radius: 10px !important;
+            border: 1px solid var(--orange) !important;
+        }
+
+        .dataTables_info 
+        {
+            font-size: 15px;
+            color: var(--blueDark);
+            font-weight: 500;
+        }
+
+        /* Pagination Container */
+        .dataTables_paginate {
+            margin: 0;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Pagination Buttons */
+        .dataTables_paginate .paginate_button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--blueDark);
+            border: 1px solid var(--orange);
+            border-radius: 0.375rem !important;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        /* Hover State */
+        .dataTables_paginate .paginate_button:hover {
+            background-color: var(--orange);
+            color: white !important;
+            border-color: var(--orange);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Active/Current Page */
+        .dataTables_paginate .paginate_button.current,
+        .dataTables_paginate .paginate_button.current:hover {
+            background-color: var(--orange);
+            color: white !important;
+            border-color: var(--orange);
+            font-weight: 800;
+        }
+
+        /* Disabled Buttons */
+        .dataTables_paginate .paginate_button.disabled,
+        .dataTables_paginate .paginate_button.disabled:hover,
+        .dataTables_paginate .paginate_button.disabled:active {
+            color: var(--orange) !important;
+            background-color: var(--orange) !important;
+            border-color: var(--orange) !important;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Navigation Buttons (Previous/Next) */
+        .dataTables_paginate .paginate_button.previous,
+        .dataTables_paginate .paginate_button.next {
+            background-color: #f0f0f0 !important;
+            border: 1px solid var(--orange) !important;
+            color: var(--blueDark) !important;
+            font-weight: 800;
+            border-radius: 0.375rem !important;
+        }
+
+        .dataTables_paginate .paginate_button.previous:hover,
+        .dataTables_paginate .paginate_button.next:hover {
+            background-color: var(--orange) !important;
+            color: white !important;
+            border-color: var(--blueDark) !important;
+        }
+
+        /* Ellipsis */
+        .dataTables_paginate .ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--orange);
+        }
+
+
+
+
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-[var(--blueDark)]">Enfermeiros</h1>
+        <p class="text-gray-600">Gerencie os enfermeiros do sistema</p>
+    </div>
+    
+    <!-- Add New Admin Button -->
+    <div>
+        <button id="addNurseBtn" class="bg-[var(--orange)] hover:bg-[var(--orangeDark)] text-white px-4 py-2 rounded-lg flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Novo Enfermeiro
+        </button>
+    </div>
+</div>
+<!-- Admins Table -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4">
+        <table id="adminsTable" class="w-full">
+            <thead>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Data will be loaded via AJAX -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Admin Modal -->
+<div id="viewNurseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Detalhes do Enfermeiro</h3>
+                <button onclick="closeModal('viewNurseModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Nome Completo</label>
+                    <p id="view-name" class="mt-1 text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Email</label>
+                    <p id="view-email" class="mt-1 text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Status</label>
+                    <p id="view-status" class="mt-1"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"></span></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Data de Criação</label>
+                    <p id="view-created_at" class="mt-1 text-gray-900"></p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('viewNurseModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Admin Modal -->
+<div id="editNurseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form id="editNurseForm" class="p-6" method="post">
+            <input type="hidden" id="edit-id" name="id">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Editar Enfermeiro</h3>
+                <button type="button" onclick="closeModal('editNurseModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="edit-fullname" class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                    <input type="text" id="edit-fullname" name="fullname" required placeholder="Nome Completo"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="edit-email" class="block text-sm font-medium text-gray-700">Email *</label>
+                    <input type="email" id="edit-email" name="email" required placeholder="email@exemplo.com"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="edit-phone" class="block text-sm font-medium text-gray-700">Telefone *</label>
+                    <input type="tel" id="edit-phone" name="phone" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="(00) 00000-0000">
+                </div>
+                <div>
+                    <label for="edit-cpf" class="block text-sm font-medium text-gray-700">CPF *</label>
+                    <input type="text" id="edit-cpf" name="cpf" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="000.000.000-00">
+                </div>
+                <div>
+                    <label for="edit-coren" class="block text-sm font-medium text-gray-700">COREN *</label>
+                    <input type="text" id="edit-coren" name="coren" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="COREN/UF 000000">
+                </div>
+                <div>
+                    <label for="edit-address" class="block text-sm font-medium text-gray-700">Endereço *</label>
+                    <input type="text" id="edit-address" name="address" required placeholder="Rua, Bairro, Cidade - Estado"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="edit-birthdate" class="block text-sm font-medium text-gray-700">Data de Nascimento *</label>
+                    <input type="date" id="edit-birthdate" name="birthdate" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="edit-gender" class="block text-sm font-medium text-gray-700">Gênero *</label>
+                    <select id="edit-gender" name="gender" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="edit-password" class="block text-sm font-medium text-gray-700">Nova Senha</label>
+                    <div class="relative mt-1">
+                        <input type="password" id="edit-password" name="password" placeholder="Deixe em branco para manter a senha atual"
+                            class="pr-10 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <button type="button" onclick="togglePassword('edit-password', 'edit-password-icon')" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500">
+                            <i id="edit-password-icon" class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label for="edit-active" class="block text-sm font-medium text-gray-700">Status *</label>
+                    <select id="edit-active" name="active" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('editNurseModal')" 
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--orange)] hover:bg-[var(--orangeDark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--orange)]">
+                    Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div id="addNurseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form id="addNurseForm" class="p-6" action="{{ url_for('admin.nurse_admin_add') }}" method="post" enctype="multipart/form-data">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Novo Enfermeiro</h3>
+                <button type="button" onclick="closeModal('addNurseModal')" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="fullname" class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                    <input type="text" id="fullname" name="fullname" required placeholder="Nome Completo"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="email@exemplo.com"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">Telefone *</label>
+                    <input type="tel" id="phone" name="phone" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="(00) 00000-0000">
+                </div>
+                <div>
+                    <label for="cpf" class="block text-sm font-medium text-gray-700">CPF *</label>
+                    <input type="text" id="cpf" name="cpf" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="000.000.000-00">
+                </div>
+                <div class="md:col-span-1">
+                    <label for="coren" class="block text-sm font-medium text-gray-700">COREN *</label>
+                    <input type="text" id="coren" name="coren" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        placeholder="COREN/UF 000000">
+                </div>
+                <div class="md:col-span-1">
+                    <label for="address" class="block text-sm font-medium text-gray-700">Endereço *</label>
+                    <input type="text" id="address" name="address" required placeholder="Rua, Bairro, Cidade - Estado"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div class="md:col-span-1">
+                    <label for="birthdate" class="block text-sm font-medium text-gray-700">Data de Nascimento *</label>
+                    <input type="date" id="birthdate" name="birthdate" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                </div>
+                <div class="md:col-span-1">
+                    <label for="gender" class="block text-sm font-medium text-gray-700">Gênero *</label>
+                    <select id="gender" name="gender" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Senha *</label>
+                    <div class="relative mt-1">
+                        <input type="password" id="password" name="password" required placeholder="Senha"
+                            class="pr-10 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700" onclick="togglePassword('password', 'toggle-password')">
+                            <i id="toggle-password" class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label for="password-confirm" class="block text-sm font-medium text-gray-700">Confirmar Senha *</label>
+                    <div class="relative mt-1">
+                        <input type="password" id="password-confirm" name="password_confirm" required placeholder="Confirmar Senha"
+                            class="pr-10 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700" onclick="togglePassword('password-confirm', 'toggle-password-confirm')">
+                            <i id="toggle-password-confirm" class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- File Upload Section -->
+            <div class="mt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Documentos do Enfermeiro</h3>
+                
+                <!-- RG Document -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Imagem do RG</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md upload-container" id="rg-upload-container">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="rg-image" class="relative cursor-pointer bg-white rounded-md font-medium text-[var(--orange)] hover:text-[var(--orangeDark)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus:ring-[var(--orange)]">
+                                    <span>Enviar arquivo</span>
+                                    <input id="rg-image" name="rg_image" type="file" class="sr-only" accept="image/png,image/jpeg,image/jpg">
+                                </label>
+                                <p class="pl-1">ou arraste e solte</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, JPEG até 5MB</p>
+                            <div id="rg-filename" class="text-sm text-gray-900 mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Doctor's Photo -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Foto do Enfermeiro</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md upload-container" id="photo-upload-container">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="doctor-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-[var(--orange)] hover:text-[var(--orangeDark)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus:ring-[var(--orange)]">
+                                    <span>Enviar arquivo</span>
+                                    <input id="doctor-photo" name="doctor_photo" type="file" class="sr-only" accept="image/png,image/jpeg,image/jpg">
+                                </label>
+                                <p class="pl-1">ou arraste e solte</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, JPEG até 5MB</p>
+                            <div id="photo-filename" class="text-sm text-gray-900 mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('addNurseModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--orange)] hover:bg-[var(--orangeDark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--orange)]">
+                    Adicionar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-center text-gray-900">Tem certeza?</h3>
+            <div class="mt-2 text-sm text-gray-500 text-center">
+                <p>Você realmente deseja desativar este enfermeiro? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="mt-5 flex justify-center space-x-3">
+                <button type="button" onclick="closeModal('deleteModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Sim, desativar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dataTable;
+    let nurseToDelete = null;
+
+    // Estilos para drag and drop
+    const style = document.createElement('style');
+    style.textContent = `
+        .upload-container {
+            transition: all 0.2s ease-in-out;
+        }
+        .upload-container.drag-over {
+            border-color: var(--orange);
+            background-color: rgba(251, 146, 60, 0.1);
+        }
+        .file-uploaded {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 0.375rem;
+            margin-top: 0.5rem;
+        }
+        .file-uploaded svg {
+            color: #22c55e;
+            margin-right: 0.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Função para gerenciar o upload de arquivos
+    function setupFileUpload(containerId, inputId, filenameId) {
+        const container = document.getElementById(containerId);
+        const input = document.getElementById(inputId);
+        const filenameDisplay = document.getElementById(filenameId);
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            container.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            container.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            container.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        container.addEventListener('drop', handleDrop, false);
+
+        // Handle click on container to open file dialog
+        container.addEventListener('click', () => {
+            input.click();
+        });
+
+        // Handle file selection via input
+        input.addEventListener('change', handleFiles);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            container.classList.add('drag-over');
+        }
+
+        function unhighlight() {
+            container.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            input.files = files;
+            handleFiles({ target: { files } });
+        }
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                // Check file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('O arquivo não pode ser maior que 5MB', 'error');
+                    return;
+                }
+                // Check file type based on input ID
+                let validTypes = [];
+                if (inputId === 'certificate-file') {
+                    validTypes = ['application/x-pkcs12'];
+                } else if (inputId === 'rg-image' || inputId === 'doctor-photo') {
+                    validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                }
+                if (!validTypes.includes(file.type)) {
+                    showToast('Formato de arquivo inválido. Use JPG, PNG ou PDF.', 'error');
+                    return;
+                }
+                
+                // Update UI
+                filenameDisplay.innerHTML = `
+                    <div class="file-uploaded">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Inicializar os uploads quando o documento estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        setupFileUpload('rg-upload-container', 'rg-image', 'rg-filename');
+        setupFileUpload('photo-upload-container', 'doctor-photo', 'photo-filename');
+    });
+
+    // Função para aplicar máscaras
+    function applyMasks() {
+        // Máscara para telefone (00) 00000-0000
+        $('#phone').mask('(00) 00000-0000');
+        
+        // Máscara para CPF 000.000.000-00
+        $('#cpf').mask('000.000.000-00');
+        
+        // Máscara para CRM UF 000000
+        $('#coren').mask('AAAAA/AA 000000', {
+            translation: {
+                'A': { pattern: /[A-Za-z]/, optional: false },
+                '0': { pattern: /[0-9]/, optional: false }
+            },
+            onKeyPress: function(crm, e, field, options) {
+                // Converte para maiúsculas
+                field.val(crm.toUpperCase());
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        // Aplicar máscaras quando o documento estiver pronto
+        applyMasks();
+        
+        // Reaplicar máscaras quando o modal for aberto
+        $('#addNurseModal').on('shown.bs.modal', function () {
+            applyMasks();
+        });
+
+        // Initialize DataTable with server-side processing disabled
+        dataTable = $('#adminsTable').DataTable({
+            ajax: {
+                url: '/admin/nurses/data',
+                type: 'GET',
+            },
+            columnDefs: [
+                {
+                    targets: [6],
+                    className: 'text-center'
+                }
+            ],
+            columns: [
+                { 
+                    data: 'id',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900',
+                    visible: false  // Hide ID column by default
+                },
+                { 
+                    data: 'fullname',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900',
+                    title: 'Nome'
+                },
+                { 
+                    data: 'coren',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'COREN'
+                },
+                { 
+                    data: 'email',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'E-mail'
+                },
+                { 
+                    data: 'phone',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Telefone',
+                    render: function(data) {
+                        // Format phone number if needed
+                        return data || 'N/A';
+                    }
+                },
+                { 
+                    data: 'active',
+                    className: 'px-6 py-4 whitespace-nowrap',
+                    title: 'Status',
+                    width: '10%',
+                    render: function(data, type, row) {
+                        return data ? 
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Ativo</span>' :
+                            '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inativo</span>';
+                    }
+                },
+                { 
+                    data: 'create_at',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    title: 'Criado em',
+                    width: '15%',
+                    render: function(data) {
+                        return data ? new Date(data).toLocaleString('pt-BR') : 'N/A';
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-center',
+                    title: 'Ações',
+                    width: '10%',
+                    render: function(data, type, row) {
+                        // Ensure we have a valid row ID
+                        if (!row || row.id === undefined) return '';
+                        
+                        return `
+                            <div class="flex justify-center space-x-3">
+                                <button onclick="viewNurse(${row.id}); return false;" 
+                                    class="text-blue-600 hover:text-blue-800 transition-colors" 
+                                    title="Visualizar">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <button onclick="editNurse(${row.id}); return false;" 
+                                    class="text-yellow-600 hover:text-yellow-800 transition-colors" 
+                                    title="Editar">
+                                    <i class="far fa-edit"></i>
+                                </button>
+                                <button onclick="confirmDelete(${row.id}); return false;" 
+                                    class="text-red-600 hover:text-red-800 transition-colors" 
+                                    title="Excluir">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            ],
+            responsive: true,
+            order: [[5, 'desc']], // Sort by created_at by default
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json',
+                search: '_INPUT_',
+                searchPlaceholder: 'Buscar...',
+                lengthMenu: 'Mostrar _MENU_ itens por página',
+                zeroRecords: 'Nenhum registro encontrado',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_ itens',
+                infoEmpty: 'Mostrando 0 a 0 de 0 itens',
+                infoFiltered: '(filtrado de _MAX_ itens no total)',
+                paginate: {
+                    first: "<<",
+                    last: ">>",
+                    next: ">",
+                    previous: "<"
+                }
+            },
+            dom: "<'flex flex-col md:flex-row md:items-center md:justify-between mb-4'<'mb-4 md:mb-0'l><'md:ml-auto'f>>" +
+                 "<'overflow-x-auto rounded-lg border border-gray-200'rt>" +
+                 "<'flex flex-col md:flex-row items-center justify-between mt-4'<'mb-4 md:mb-0'i><'flex space-x-2'p>>",
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'Todos']],
+            
+        });
+
+        $('#addNurseBtn').click(function() {
+            $('#addNurseForm')[0].reset();
+            openModal('addNurseModal');
+        });
+        
+        $('#editNurseForm').on('submit', function(e) {
+            e.preventDefault();
+            const nurseId = $('#edit-id').val();
+            const formData = $(this).serialize();
+            formData.concat('id', nurseId);
+
+            $.ajax({
+                url: `/admin/nurses/${nurseId}/edit`,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    closeModal('editNurseModal');
+                    window.location.reload();
+                    return;
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao atualizar enfermeiro', 'error');
+                    return;
+                }
+            });
+        });
+
+        $('#confirmDeleteBtn').click(function() {
+            if (!nurseToDelete) return;
+            
+            $.ajax({
+                url: `/admin/nurses/${nurseToDelete}/delete`,
+                type: 'GET',
+                success: function(response) {
+                    closeModal('deleteModal');
+                    window.location.reload();
+                    nurseToDelete = null;
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao deletar enfermeiro', 'error');
+                }
+            });
+        });
+    
+    });
+
+    function openModal(modalId) {
+        $(`#${modalId}`).removeClass('hidden').addClass('flex');
+        $('body').addClass('overflow-hidden');
+    }
+
+    function closeModal(modalId) {
+        $(`#${modalId}`).addClass('hidden').removeClass('flex');
+        $('body').removeClass('overflow-hidden');
+    }
+
+    function viewNurse(nurseId) {
+        $.ajax({
+            url: `/admin/nurses/${nurseId}/view`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function(response) {
+                const nurse = response.data;
+                $('#view-name').text(nurse.fullname);
+                $('#view-email').text(nurse.email);
+                $('#view-created_at').text(new Date(nurse.birthdate).toLocaleString('pt-BR').split(',')[0]);
+                
+                const statusElement = $('#view-status span');
+                statusElement.removeClass('bg-green-100 text-green-800 bg-red-100 text-red-800');
+        
+                if (nurse.active) {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Ativo');
+                } else {
+                    statusElement.addClass('bg-red-100 text-red-800').text('Inativo');
+                }
+        
+                openModal('viewNurseModal');
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON || {};
+                showToast(error.message || 'Erro ao visualizar enfermeiro', 'error');
+            }
+        });
+    }
+
+    function editNurse(nurseId) {
+        $("#edit-id").val(nurseId);
+        $.ajax({
+            url: `/admin/nurses/${nurseId}/view`,
+            contentType: 'application/json',
+            type: 'GET',
+            success: function(response) {
+                const nurse = response.data;
+                // Preencher o formulário com os dados do administrador
+                $('#edit-id').val(nurse.id);
+                $('#edit-fullname').val(nurse.fullname);
+                $('#edit-email').val(nurse.email);
+                $('#edit-phone').val(nurse.phone);
+                $('#edit-coren').val(nurse.coren);
+                $('#edit-cpf').val(nurse.cpf);
+                $('#edit-birthdate').val(new Date(nurse.birthdate).toISOString().split('T')[0]);
+                $('#edit-gender').val(nurse.gender || 'Masculino');
+                $('#edit-address').val(nurse.address || '');
+                $('#edit-active').val(nurse.active ? '1' : '0');
+                
+                // Aplicar máscaras
+                $('#edit-phone').mask('(00) 00000-0000');
+                $('#edit-cpf').mask('000.000.000-00');
+                
+                // Abrir o modal
+                openModal('editNurseModal');
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON || {};
+                showToast(error.message || 'Erro ao carregar dados do enfermeiro', 'error');
+            }
+        });
+    }
+
+    function confirmDelete(nurseId) {
+        nurseToDelete = nurseId;
+        openModal('deleteModal');
+    }
+    
+    // Toggle password visibility
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+</script>
+
+{% endblock %}

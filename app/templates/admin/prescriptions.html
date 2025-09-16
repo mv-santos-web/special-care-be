@@ -1,0 +1,761 @@
+{% extends "includes/layout.html" %}
+{% block title %}Prescrições{% endblock %}
+{% block styles %}
+<style>
+    .dataTables_length {
+        font-size: 15px;
+        color: var(--blueDark);
+        font-weight: 500;
+    }
+
+    .dataTables_length select {
+        font-size: 15px;
+        color: var(--blueDark);
+        font-weight: 500;
+        margin-left: 5px;
+        margin-right: 5px;
+        padding: 2px;
+        border-radius: 10px !important;
+        border: 1px solid var(--orange) !important;
+        text-align: center;
+    }
+
+    .dataTables_filter input {
+        font-size: 15px;
+        color: var(--blueDark);
+        font-weight: 500;
+        margin-left: 5px;
+        margin-right: 5px;
+        padding: 3px;
+        border-radius: 10px !important;
+        border: 1px solid var(--orange) !important;
+    }
+
+    .dataTables_info {
+        font-size: 15px;
+        color: var(--blueDark);
+        font-weight: 500;
+    }
+
+    /* Pagination Container */
+    .dataTables_paginate {
+        margin: 0;
+        padding: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Pagination Buttons */
+    .dataTables_paginate .paginate_button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--blueDark);
+        border: 1px solid var(--orange);
+        border-radius: 0.375rem !important;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+    }
+
+    /* Hover State */
+    .dataTables_paginate .paginate_button:hover {
+        background-color: var(--orange);
+        color: white !important;
+        border-color: var(--orange);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Active/Current Page */
+    .dataTables_paginate .paginate_button.current,
+    .dataTables_paginate .paginate_button.current:hover {
+        background-color: var(--orange);
+        color: white !important;
+        border-color: var(--orange);
+        font-weight: 800;
+    }
+
+    /* Disabled Buttons */
+    .dataTables_paginate .paginate_button.disabled,
+    .dataTables_paginate .paginate_button.disabled:hover,
+    .dataTables_paginate .paginate_button.disabled:active {
+        color: var(--orange) !important;
+        background-color: var(--orange) !important;
+        border-color: var(--orange) !important;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Navigation Buttons (Previous/Next) */
+    .dataTables_paginate .paginate_button.previous,
+    .dataTables_paginate .paginate_button.next {
+        background-color: #f0f0f0 !important;
+        border: 1px solid var(--orange) !important;
+        color: var(--blueDark) !important;
+        font-weight: 800;
+        border-radius: 0.375rem !important;
+    }
+
+    .dataTables_paginate .paginate_button.previous:hover,
+    .dataTables_paginate .paginate_button.next:hover {
+        background-color: var(--orange) !important;
+        color: white !important;
+        border-color: var(--blueDark) !important;
+    }
+
+    /* Ellipsis */
+    .dataTables_paginate .ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--orange);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- jQuery Mask Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-[var(--blueDark)]">Prescrições</h1>
+        <p class="text-gray-600">Gerencie as prescrições do sistema</p>
+    </div>
+
+    <!-- Add New Admin Button
+    <div>
+        <button id="addPrescriptionBtn"
+            class="bg-[var(--orange)] hover:bg-[var(--orangeDark)] text-white px-4 py-2 rounded-lg flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+            </svg>
+            Nova Prescrição
+        </button>
+    </div> -->
+</div>
+<!-- Admins Table -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4">
+        <table id="prescriptionsTable" class="w-full">
+            <thead>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Data will be loaded via AJAX -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div id="addPrescriptionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form id="addPrescriptionForm" class="p-6" enctype="multipart/form-data">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Nova Prescrição</h3>
+                <button type="button" onclick="closeModal('addPrescriptionModal')"
+                    class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="patient" class="block text-sm font-medium text-gray-700">Paciente *</label>
+                    <select type="text" id="patient" name="patient" required placeholder="Paciente"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um paciente</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}">{{ patient.fullname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="medic" class="block text-sm font-medium text-gray-700">Médico *</label>
+                    <select type="text" id="medic" name="medic" required placeholder="Médico"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione um médico</option>
+                        {% for medic in medics %}
+                        <option value="{{ medic.id }}">{{ medic.fullname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status *</label>
+                    <select id="status" name="status" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900">
+                        <option value="">Selecione...</option>
+                        <option value="signed">Assinada</option>
+                        <option value="pending">Pendente</option>
+                        <option value="invalid">Inválida</option>
+                        <option value="unsigned">Não Assinada</option>
+                        <option value="cancelled">Cancelada</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="prescription_type" class="block text-sm font-medium text-gray-700">Tipo *</label>
+                    <select id="prescription_type" name="prescription_type" required
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        onchange="updatePrescriptionTemplate()">
+                        <option value="">Selecione...</option>
+                        <option value="normal">Normal</option>
+                        <option value="controlled">Controlada</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label for="cert_pass" class="block text-sm font-medium text-gray-700">Senha do Certificado Digital
+                        *</label>
+                    <input type="password" placeholder="Senha do certificado digital do médico selecionado"
+                        id="cert_pass" name="cert_pass"
+                        class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"
+                        required>
+                </div>
+
+                <div class="col-span-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Medicamentos *</label>
+                        <button type="button" onclick="addMedicineField()"
+                            class="text-sm text-[var(--orange)] hover:text-[var(--orangeDark)] flex items-center">
+                            <i class="fas fa-plus-circle mr-1"></i> Adicionar Medicamento
+                        </button>
+                    </div>
+
+                    <div id="medicines-container" class="space-y-4">
+                        <!-- Medicine fields will be added here dynamically -->
+                    </div>
+
+                    <div id="observations-container" class="mt-4">
+                        <label for="observations" class="block text-sm font-medium text-gray-700">Observações</label>
+                        <textarea placeholder="Ex: Voltar em 15 dias" id="observations" name="observations" rows="4"
+                            class="mt-1 p-2 block w-full rounded-md border border-gray-200 bg-gray-50 shadow-sm focus:border-[var(--orange)] focus:ring focus:ring-[var(--orange)] focus:ring-opacity-50 text-gray-900"></textarea>
+                    </div>
+
+                    <!-- Hidden template for new medicine fields -->
+                    <template id="medicine-template">
+                        <div class="medicine-item border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-medium text-gray-700">Medicamento <span class="medicine-number">1</span>
+                                </h4>
+                                <button type="button" onclick="removeMedicineField(this)"
+                                    class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Nome *</label>
+                                    <input type="text" name="medicines[][name]" required placeholder="Ex: Paracetamol"
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Concentração *</label>
+                                    <input type="text" name="medicines[][strength]" required
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]"
+                                        placeholder="Ex: 500mg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Posologia *</label>
+                                    <input type="text" name="medicines[][dosage]" required
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]"
+                                        placeholder="Ex: 1 comprimido de 12 em 12 horas">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Quantidade *</label>
+                                        <input type="number" name="medicines[][quantity]" required placeholder="Ex: 10"
+                                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Unidade *</label>
+                                        <select name="medicines[][unit]" required
+                                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]">
+                                            <option value="">Selecione...</option>
+                                            <option value="comprimidos">Comprimidos</option>
+                                            <option value="cápsulas">Cápsulas</option>
+                                            <option value="frascos">Frascos</option>
+                                            <option value="ampolas">Ampolas</option>
+                                            <option value="gotas">Gotas</option>
+                                            <option value="mg">mg</option>
+                                            <option value="ml">ml</option>
+                                            <option value="g">g</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Uso *</label>
+                                    <input type="text" name="medicines[][usage]" required
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]"
+                                        placeholder="Ex: Uso oral">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">Observações</label>
+                                    <textarea name="medicines[][observations]" rows="2"
+                                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-[var(--orange)] focus:border-[var(--orange)]"
+                                        placeholder="Informações adicionais"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Hidden input to store the final HTML content -->
+                    <input type="hidden" id="content" name="content">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="closeModal('addPrescriptionModal')"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--orange)] hover:bg-[var(--orangeDark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--orange)]">
+                    Adicionar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-center text-gray-900">Tem certeza?</h3>
+            <div class="mt-2 text-sm text-gray-500 text-center">
+                <p>Você realmente deseja desativar esta prescrição? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="mt-5 flex justify-center space-x-3">
+                <button type="button" onclick="closeModal('deleteModal')"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="button" id="confirmDeleteBtn"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Sim, desativar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dataTable;
+    let prescriptionToDelete = null;
+
+    // Estilos para drag and drop
+    const style = document.createElement('style');
+    style.textContent = `
+        .upload-container {
+            transition: all 0.2s ease-in-out;
+        }
+        .upload-container.drag-over {
+            border-color: var(--orange);
+            background-color: rgba(251, 146, 60, 0.1);
+        }
+        .file-uploaded {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 0.375rem;
+            margin-top: 0.5rem;
+        }
+        .file-uploaded svg {
+            color: #22c55e;
+            margin-right: 0.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Função para aplicar máscaras
+    function applyMasks() {
+        // Máscara para telefone (00) 00000-0000
+        $('#phone').mask('(00) 00000-0000');
+
+        // Máscara para CPF 000.000.000-00
+        $('#cpf').mask('000.000.000-00');
+
+    }
+
+    $(document).ready(function () {
+        // Aplicar máscaras quando o documento estiver pronto
+        applyMasks();
+
+        // Reaplicar máscaras quando o modal for aberto
+        $('#addPrescriptionModal').on('shown.bs.modal', function () {
+            applyMasks();
+        });
+
+        // Initialize DataTable with server-side processing disabled
+        dataTable = $('#prescriptionsTable').DataTable({
+            ajax: {
+                url: 'prescriptions/data',
+                type: 'GET'
+            },
+            columnDefs: [
+                {
+                    targets: [6],
+                    className: 'text-center'
+                }
+            ],
+            columns: [
+                {
+                    data: 'id',
+                    title: 'ID',
+                    visible: false,
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'
+                },
+                {
+                    data: 'patient',
+                    title: 'Paciente',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    render: function (data) {
+                        return data ? data.fullname : 'N/A';
+                    }
+                },
+                {
+                    data: 'doctor',
+                    title: 'Médico',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    render: function (data) {
+                        return data ? data.fullname : 'N/A';
+                    }
+                },
+                {
+                    data: 'validation_code',
+                    title: 'Código de Validação',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    render: function (data) {
+                        return data ? data.substring(0, 30) + '...' : 'N/A';
+                    }
+                },
+                {
+                    data: 'data',
+                    title: 'Qtd. Medicamentos',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-bold',
+                    render: function (data) {
+                        const json_data = JSON.parse(data);
+                        return data ? json_data.medicines.length : 'N/A';
+                    }
+                },
+                {
+                    data: 'created_date',
+                    title: 'Data de Emissão',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500',
+                    render: function (data) {
+                        return data ? new Date(data).toLocaleString() : 'N/A';
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    title: 'Ações',
+                    className: 'px-6 py-4 whitespace-nowrap text-sm font-medium text-center',
+                    render: function (data, type, row) {
+                        return `
+                                            <div class="flex justify-center space-x-2">
+                                                <button onclick="window.location.href='/admin/prescriptions/${row.id}/view'" class="text-blue-600 hover:text-blue-900">
+                                                    <i class="far fa-eye"></i>
+                                                </button>
+                                                <button onclick="window.location.href='/admin/prescriptions/${row.id}/download'" class="text-blue-600 hover:text-blue-900">
+                                                    <i class="fa-solid fa-arrow-down text-green-600 hover:text-green-900"></i>
+                                                </button>
+                                                <button onclick="confirmDelete(${row.id})" class="text-red-600 hover:text-red-900">
+                                                    <i class="far fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        `;
+                    }
+                }
+            ],
+            responsive: true,
+            order: [[5, 'desc']],
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json',
+                search: '_INPUT_',
+                searchPlaceholder: 'Buscar...',
+                lengthMenu: 'Mostrar _MENU_ itens por página',
+                zeroRecords: 'Nenhum registro encontrado',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_ itens',
+                infoEmpty: 'Mostrando 0 a 0 de 0 itens',
+                infoFiltered: '(filtrado de _MAX_ itens no total)',
+                paginate: {
+                    first: "<<",
+                    last: ">>",
+                    next: ">",
+                    previous: "<"
+                }
+            },
+            dom: "<'flex flex-col md:flex-row md:items-center md:justify-between mb-4'<'mb-4 md:mb-0'l><'md:ml-auto'f>>" +
+            "<'overflow-x-auto rounded-lg border border-gray-200'rt>" +
+            "<'flex flex-col md:flex-row items-center justify-between mt-4'<'mb-4 md:mb-0'i><'flex space-x-2'p>>",
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'Todos']],
+        });
+
+        $('#addPrescriptionBtn').click(function () {
+            $('#addPrescriptionForm')[0].reset();
+            openModal('addPrescriptionModal');
+        });
+
+        $('#addPrescriptionForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Coletar dados do formulário
+            const formData = {
+                patient_id: $('#patient').val(),
+                medic_id: $('#medic').val(),
+                status: $('#status').val(),
+                prescription_type: $('#prescription_type').val(),
+                observations: $('#observations').val(),
+                cert_pass: $('#cert_pass').val(),
+                medicines: []
+            };
+
+            // Coletar medicamentos
+            $('.medicine-item').each(function () {
+                const $item = $(this);
+                const medicine = {
+                    name: $item.find('[name$="[name]"]').val(),
+                    strength: $item.find('[name$="[strength]"]').val(),
+                    dosage: $item.find('[name$="[dosage]"]').val(),
+                    quantity: $item.find('[name$="[quantity]"]').val(),
+                    unit: $item.find('[name$="[unit]"]').val(),
+                    usage: $item.find('[name$="[usage]"]').val(),
+                    observations: $item.find('[name$="[observations]"]').val()
+                };
+                formData.medicines.push(medicine);
+            });
+
+            console.log(JSON.stringify(formData));
+            // Enviar para o backend
+            $.ajax({
+                url: '/admin/prescriptions',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    closeModal('addPrescriptionModal');
+                    showToast('Prescrição adicionada com sucesso!', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                },
+                error: function (xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao adicionar prescrição', 'error');
+                    console.error('Erro:', xhr);
+                }
+            });
+        });
+
+        $('#confirmDeleteBtn').click(function () {
+            if (!prescriptionToDelete) return;
+
+            $.ajax({
+                url: `/admin/prescriptions/${prescriptionToDelete}`,
+                type: 'DELETE',
+                success: function (response) {
+                    closeModal('deleteModal');
+                    window.location.reload();
+                    prescriptionToDelete = null;
+                    return;
+                },
+                error: function (xhr) {
+                    const error = xhr.responseJSON || {};
+                    showToast(error.message || 'Erro ao deletar prescrição', 'error');
+                    return;
+                }
+            });
+        });
+    
+    });
+
+    function openModal(modalId) {
+        $(`#${modalId}`).removeClass('hidden').addClass('flex');
+        $('body').addClass('overflow-hidden');
+    }
+
+    function closeModal(modalId) {
+        $(`#${modalId}`).addClass('hidden').removeClass('flex');
+        $('body').removeClass('overflow-hidden');
+    }
+
+    function viewPrescription(prescriptionId) {
+        $.ajax({
+            url: `prescriptions/${prescriptionId}`,
+            type: 'GET',
+            success: function (response) {
+                const prescription = response;
+                console.log(prescription);
+
+                $('#view-patient').text(prescription.patient.fullname);
+                $('#view-paramedic').text(prescription.paramedic.fullname);
+                $('#view-nurse').text(prescription.nurse.fullname);
+                $('#view-created_at').text(prescription.created_at);
+
+                const statusElement = $('#view-status span');
+                statusElement.removeClass('bg-green-100 text-green-800 bg-red-100 text-red-800');
+
+                if (prescription.status === 'Atendida') {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Atendida');
+                } else if (prescription.status === 'Em Trânsito') {
+                    statusElement.addClass('bg-blue-100 text-blue-800').text('Em Trânsito');
+                } else if (prescription.status === 'Aceita') {
+                    statusElement.addClass('bg-green-100 text-green-800').text('Aceita');
+                } else if (prescription.status === 'Solicitada') {
+                    statusElement.addClass('bg-yellow-100 text-yellow-800').text('Solicitada');
+                } else if (prescription.status === 'Cancelada') {
+                    statusElement.addClass('bg-red-100 text-red-800').text('Cancelada');
+                } else if (prescription.status === 'Em Atendimento') {
+                    statusElement.addClass('bg-blue-100 text-blue-800').text('Em Atendimento');
+                } else {
+                    statusElement.addClass('bg-blue-100 text-blue-800').text('Status desconhecido');
+                }
+
+                openModal('viewPrescriptionModal');
+            },
+            error: function (xhr) {
+                const error = xhr.responseJSON || {};
+                showToast(error.message || 'Erro ao visualizar prescrição', 'error');
+            }
+        });
+    }
+
+    function confirmDelete(prescriptionId) {
+        prescriptionToDelete = prescriptionId;
+        openModal('deleteModal');
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+    let medicineCount = 0;
+
+    // Add a new medicine field
+    function addMedicineField() {
+        const container = document.getElementById('medicines-container');
+        const template = document.getElementById('medicine-template');
+        const clone = template.content.cloneNode(true);
+
+        medicineCount++;
+        const medicineItem = clone.querySelector('.medicine-item');
+        medicineItem.dataset.index = medicineCount - 1;
+
+        // Update field names with index
+        const fields = medicineItem.querySelectorAll('[name^="medicines["]');
+        fields.forEach(field => {
+            const name = field.getAttribute('name').replace('[]', `[${medicineCount - 1}]`);
+            field.setAttribute('name', name);
+        });
+
+        // Update medicine number
+        const numberSpan = medicineItem.querySelector('.medicine-number');
+        if (numberSpan) {
+            numberSpan.textContent = medicineCount;
+        }
+
+        container.appendChild(clone);
+        updateContent();
+    }
+
+    // Remove a medicine field
+    function removeMedicineField(button) {
+        const medicineItem = button.closest('.medicine-item');
+        if (medicineItem) {
+            medicineItem.remove();
+            updateMedicineNumbers();
+            updateContent();
+        }
+    }
+
+    // Update medicine numbers after removal
+    function updateMedicineNumbers() {
+        const items = document.querySelectorAll('.medicine-item');
+        items.forEach((item, index) => {
+            const numberSpan = item.querySelector('.medicine-number');
+            if (numberSpan) {
+                numberSpan.textContent = index + 1;
+            }
+
+            // Update field names with new indices
+            const fields = item.querySelectorAll('[name^="medicines["]');
+            fields.forEach(field => {
+                const name = field.getAttribute('name').replace(/\[\d+\]/, `[${index}]`);
+                field.setAttribute('name', name);
+            });
+        });
+        medicineCount = items.length;
+    }
+
+    // Update the hidden content field with the formatted HTML
+    function updateContent() {
+        const container = document.getElementById('medicines-container');
+        const contentInput = document.getElementById('content');
+        let html = '';
+
+        // Get all medicine items
+        const items = container.querySelectorAll('.medicine-item');
+        items.forEach(item => {
+            const name = item.querySelector('[name$="[name]"]')?.value || '';
+            const strength = item.querySelector('[name$="[strength]"]')?.value || '';
+            const dosage = item.querySelector('[name$="[dosage]"]')?.value || '';
+            const quantity = item.querySelector('[name$="[quantity]"]')?.value || '';
+            const unit = item.querySelector('[name$="[unit]"]')?.value || '';
+            const usage = item.querySelector('[name$="[usage]"]')?.value || '';
+            const observations = item.querySelector('[name$="[observations]"]')?.value || '';
+
+            if (name) {
+                html += `
+                <div class="medicine">
+                    <p><strong>${name}</strong>${strength ? ` (${strength})` : ''}</p>
+                    <p><strong>Posologia:</strong> ${dosage}</p>
+                    <p><strong>Quantidade:</strong> ${quantity} ${unit}</p>
+                    <p><strong>Uso:</strong> ${usage}</p>
+                    ${observations ? `<p><strong>Observações:</strong> ${observations}</p>` : ''}
+                </div>`;
+            }
+        });
+
+        contentInput.value = html;
+    }
+
+    // Add event listeners for input changes
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('medicines-container');
+        container.addEventListener('input', function (e) {
+            if (e.target.matches('input, textarea, select')) {
+                updateContent();
+            }
+        });
+
+        // Add first medicine field by default
+        addMedicineField();
+    });
+</script>
+
+{% endblock %}

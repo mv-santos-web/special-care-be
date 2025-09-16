@@ -1,0 +1,121 @@
+<header class="bg-white shadow-sm">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center relative">
+        <div class="flex items-center">
+            <button id="mobile-menu-button" class="md:hidden mr-4 text-gray-500 hover:text-gray-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <h1 class="text-xl font-bold text-[var(--blueDark)]">Special Care</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <!-- User Dropdown -->
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none">
+                    <span class="hidden md:inline-block text-sm font-medium text-gray-700">{{ current_user.fullname }}</span>
+                    <div class="h-8 w-8 rounded-full bg-[var(--orange)] flex items-center justify-center text-white font-medium">
+                        {{ current_user.fullname[0]|upper }}
+                    </div>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div x-show="open" x-cloak
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                    <div class="py-1" role="menu" aria-orientation="vertical">
+                        <div class="border-t border-gray-100"></div>
+                        {% if current_user.is_authenticated  and current_user.type == 'admin' %}
+
+                        <form method="get" action="{{ url_for('admin.logout_admin') }}" class="w-full">
+                            <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                Sair
+                            </button>
+                        </form>
+                        {% elif current_user.is_authenticated and current_user.type == 'nurse' %}
+                        <form method="get" action="{{ url_for('nurse.logout_nurse') }}" class="w-full">
+                            <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                Sair
+                            </button>
+                        </form>
+                        {% elif current_user.is_authenticated and current_user.type == 'medic' %}
+                        <form method="get" action="{{ url_for('medic.logout_medic') }}" class="w-full">
+                            <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                Sair
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Alpine.js for dropdown functionality -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+// Load notifications
+document.addEventListener('DOMContentLoaded', function() {
+    // This is a mock function - replace with actual API call
+    function loadNotifications() {
+        // Mock notifications data
+        const mockNotifications = [
+            {
+                id: 1,
+                title: 'Nova mensagem',
+                message: 'Você tem uma nova mensagem não lida',
+                time: '2 min atrás',
+                read: false,
+                icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'
+            },
+            {
+                id: 2,
+                title: 'Consulta agendada',
+                message: 'Sua consulta foi agendada para amanhã às 14:00',
+                time: '1 hora atrás',
+                read: true,
+                icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+            }
+        ];
+
+        const container = document.getElementById('notifications-container');
+        if (container) {
+            if (mockNotifications.length === 0) {
+                container.innerHTML = '<div class="px-4 py-3 text-center text-sm text-gray-500">Nenhuma notificação</div>';
+                return;
+            }
+
+            container.innerHTML = mockNotifications.map(notification => `
+                <a href="#" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 ${!notification.read ? 'bg-blue-50' : ''}">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 pt-0.5">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${notification.icon}" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium text-gray-900">${notification.title}</p>
+                            <p class="text-sm text-gray-500">${notification.message}</p>
+                            <p class="mt-1 text-xs text-gray-400">${notification.time}</p>
+                        </div>
+                        ${!notification.read ? '<span class="flex-shrink-0 ml-2 inline-block w-2 h-2 rounded-full bg-blue-500"></span>' : ''}
+                    </div>
+                </a>
+            `).join('');
+        }
+    }
+
+    // Load notifications when the page loads
+    loadNotifications();
+
+    // You can also set up a WebSocket or polling mechanism to check for new notifications
+    // setInterval(loadNotifications, 30000); // Check every 30 seconds
+});
+</script>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | Special Care</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="{{ url_for('static', filename='js/toastMaker.js') }}"></script>
+  <style>
+    :root {
+      --blueLight: #e8f0fe;
+      --orange: #f46e24;
+      --orangeDark: #d65615;
+      --orangeLight: #ff8d4f;
+      --blue: #1e4471;
+      --blueGray: #7a8b9a;
+      --sand: #d59877;
+      --gray: #647388;
+      --grayLight: #e2e8f0;
+      --blueDark: #0f2d4a;
+      --grayText: #4a5568;
+      --sandLight: #e4b496;
+      --white: #ffffff;
+      --sos_red: #ff3b30;
+      --green: #38a169;
+      --new_orange: #ff914d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--blueDark) 0%, #2c5282 100%);
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .input-field {
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      box-shadow: 0 0 0 3px rgba(244, 110, 36, 0.2);
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orangeDark) 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244, 110, 36, 0.3);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      position: absolute;
+      left: 1rem;
+      top: 0.5rem;
+      color: var(--gray);
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      background: white;
+      padding: 0 0.25rem;
+      border-radius: 0.25rem;
+    }
+
+    .form-input:focus + .form-label,
+    .form-input:not(:placeholder-shown) + .form-label {
+      top: -0.75rem;
+      left: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--orange);
+      background: white;
+      padding: 0 0.5rem;
+    }
+
+    .form-input:focus {
+      border-color: var(--orange);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="login-container rounded-2xl w-full max-w-md overflow-hidden animate__animated animate__fadeIn">
+    <div class="p-8 sm:p-10">
+      <!-- Logo e Cabeçalho -->
+      <div class="text-center mb-8">
+        <div class="flex justify-center mb-4">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Special Care" class="h-16 w-auto">
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Bem-vindo de volta Admin!</h1>
+        <p class="text-gray-600">Acesse o painel do administrador</p>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form id="loginForm" class="space-y-6">
+        <!-- Grupo de Email -->
+        <div class="form-group">
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder=" " 
+            required 
+            class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
+          />
+          <label for="email" class="form-label">Email</label>
+        </div>
+
+        <!-- Grupo de Senha -->
+        <div class="form-group">
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder=" " 
+              required 
+              class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 pr-12"
+            />
+            <label for="password" class="form-label">Senha</label>
+            <button 
+              type="button" 
+              id="togglePassword" 
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-600 focus:outline-none"
+              aria-label="Mostrar senha"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lembrar de mim e Esqueci a senha -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center text-gray-700">
+            <input id="remember" name="remember" type="checkbox" class="form-checkbox h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+            <span class="ml-2">Lembrar de mim</span>
+          </label>
+          <a href="#" class="font-medium text-orange-600 hover:text-orange-500 transition-colors">
+            Esqueceu a senha?
+          </a>
+        </div>
+
+        <!-- Botão de Entrar -->
+        <button 
+          type="submit" 
+          class="btn-login w-full py-3 px-4 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+        >
+          Entrar
+        </button>
+      </form>
+
+      <!-- Mensagem de Erro -->
+      <div id="errorMessage" class="mt-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span>Email ou senha inválidos. Tente novamente.</span>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+        <p class="text-sm text-gray-600">
+          © 2025 Special Care. Todos os direitos reservados.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {% include 'includes/flash_messages.html' %}
+
+  <script>
+    // Toggle de visibilidade da senha
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function (e) {
+        e.preventDefault();
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Altera o ícone
+        const icon = this.querySelector('svg');
+        if (type === 'password') {
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+        } else {
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+        }
+      });
+    }
+
+    // Adiciona classe de foco nos inputs
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+      input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+      });
+      
+      input.addEventListener('blur', function() {
+        if (!this.value) {
+          this.parentElement.classList.remove('focused');
+        }
+      });
+    });
+  
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      fetch('{{ url_for("admin.auth_admin_post") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(data => data.json())
+      .then(data => {
+        if(data?.error == true){
+          console.log('Erro ao fazer login:', data.message);
+          window.location.reload();
+          return;
+        }
+        console.log('Login realizado com sucesso!');
+        window.location.href = '{{ url_for("admin.index") }}';
+        return;
+      })
+      .catch(error => {
+        console.error('Erro ao fazer login:', error);
+        window.location.reload();
+        return;
+      });
+    });
+
+  </script>
+</body>
+</html>
