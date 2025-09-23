@@ -150,7 +150,7 @@ class MedicService:
                 message="Um de nossos médicos acabou de aceitar sua consultas, acesse o app para ser atendido.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consults'
+                    "type": "update", "target": "nurse_consult_request"
                 }
             )
             
@@ -172,8 +172,11 @@ class MedicService:
             
             self.fcm_service.notify_user(
                 title="Consulta Cancelada !",
-                body="Um de nossos médicos acabou de cancelar sua consulta, entre em contato com o suporte para mais informações.",
-                token=patient.fcm_token
+                message="Um de nossos médicos acabou de cancelar sua consulta, entre em contato com o suporte para mais informações.",
+                user_id=patient.fcm_token,
+                data={
+                    "type": "update", "target": "nurse_consult_request"
+                }
             )
             
             return request_consult.to_dict()
@@ -197,7 +200,7 @@ class MedicService:
                 message="Um de nossos médicos está prestes a atendê-lo, abra o app e siga as instruções.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consults'
+                    "type": "update", "target": "nurse_consult_request"
                 }
             )
             
@@ -222,7 +225,7 @@ class MedicService:
                 message="Um de nossos médicos acabou de finalizar sua consulta, caso tenha alguma dúvida entre em contato com o suporte.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consults'
+                    "type": "update", "target": "nurse_consult_request"
                 }
             )
             

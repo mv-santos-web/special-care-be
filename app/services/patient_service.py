@@ -27,7 +27,7 @@ class PatientService:
     def auth_patient(self, email, password):
         try:
             check_patient = Patient.query.filter_by(email=email).first()
-            if check_patient and check_patient.check_password(password):
+            if check_patient and check_patient.check_password(password) and check_patient.active and check_patient.type == "patient":
                 return check_patient
             else:
                 raise Exception("Invalid email or password")
@@ -90,6 +90,7 @@ class PatientService:
     
     def update_location(self, patient_id, location_data):
         try:
+            
             patient = Patient.query.filter_by(id=patient_id).first()
             if not patient:
                 raise Exception("Patient not found")
@@ -128,12 +129,12 @@ class PatientService:
             db.session.add(patient_request_consult)
             db.session.commit()
             
-            self.firebase_service.save_request_care(
-                patient_id=patient_id,
-                patient_fullname=patient.fullname,
-                observations=observations,
-                status="pending"
-            )
+            # self.firebase_service.save_request_care(
+            #     patient_id=patient_id,
+            #     patient_fullname=patient.fullname,
+            #     observations=observations,
+            #     status="pending"
+            # )
             return patient_request_consult.to_dict()
         except Exception as e:
             db.session.rollback()
@@ -153,13 +154,13 @@ class PatientService:
             db.session.add(request_sos)
             db.session.commit()
             
-            self.firebase_service.save_request_emergency(
-                id=str(uuid.uuid4()),
-                patient_fullname=patient.fullname,
-                status="pending",
-                created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            )
+            # self.firebase_service.save_request_emergency(
+            #     id=str(uuid.uuid4()),
+            #     patient_fullname=patient.fullname,
+            #     status="pending",
+            #     created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            #     updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # )
             return request_sos.to_dict()      
         except Exception as e:
             db.session.rollback()   
@@ -232,7 +233,7 @@ class PatientService:
     def get_active_request_emergency(self, patient_id):
         try:
             requests = PatientRequestEmergency.query.filter_by(patient_id=patient_id).filter(
-                or_(PatientRequestEmergency.status == "pending", PatientRequestEmergency.status == "accepted", PatientRequestEmergency.status == "in_progress")
+                or_(PatientRequestEmergency.status == "pending", PatientRequestEmergency.status == "accepted", PatientRequestEmergency.status == "in_place", PatientRequestEmergency.status == "arrived")
             ).all()
             return [request.to_dict() for request in requests]
         except Exception as e:
@@ -241,7 +242,7 @@ class PatientService:
     def get_active_consult(self, patient_id):
         try:
             consults = NurseRequestConsult.query.filter_by(patient_id=patient_id).filter(
-                NurseRequestConsult.status.in_("pending", "accepted", "in_progress")
+                or_(NurseRequestConsult.status == "pending", NurseRequestConsult.status == "accepted", NurseRequestConsult.status == "in_progress", NurseRequestConsult.status == "finished")
             ).all()
             return [consult.to_dict() for consult in consults]
         except Exception as e:
@@ -250,7 +251,7 @@ class PatientService:
     def get_active_emergency(self, patient_id):
         try:
             emergencies = NurseRequestEmergency.query.filter_by(patient_id=patient_id).filter(
-                or_(NurseRequestEmergency.status == "pending", NurseRequestEmergency.status == "accepted", NurseRequestEmergency.status == "in_progress")
+                or_(NurseRequestEmergency.status == "pending", NurseRequestEmergency.status == "accepted", NurseRequestEmergency.status == "in_progress", NurseRequestEmergency.status == "in_place", NurseRequestEmergency.status == "arrived")
             ).all()
             return [emergency.to_dict() for emergency in emergencies]
         except Exception as e:
@@ -288,4 +289,40 @@ class PatientService:
             raise e
     
     
+    def get_emergencys_request_patient(self, patient_id):
+        try:
+            emergencies = PatientRequestEmergency.query.filter_by(patient_id=patient_id).filter(
+                or_(PatientRequestEmergency.status == "pending", PatientRequestEmergency.status == "accepted", PatientRequestEmergency.status == "in_place", PatientRequestEmergency.status == "arrived")
+            ).all()
+            return [emergency.to_dict() for emergency in emergencies]
+        except Exception as e:
+            raise e
+        
+    def get_emergencys_request_nurse(self, patient_id):
+        try:
+            emergencies = NurseRequestEmergency.query.filter_by(patient_id=patient_id).filter(
+                or_(NurseRequestEmergency.status == "pending", NurseRequestEmergency.status == "accepted", NurseRequestEmergency.status == "in_place", NurseRequestEmergency.status == "arrived")
+            ).all()
+            print(emergencies)
+            return [emergency.to_dict() for emergency in emergencies]
+        except Exception as e:
+            raise e
     
+    def get_consults_request_patient(self, patient_id):
+        try:
+            consults = PatientRequestConsult.query.filter_by(patient_id=patient_id).filter(
+                or_(PatientRequestConsult.status == "pending", PatientRequestConsult.status == "accepted")
+            ).all()
+            return [consult.to_dict() for consult in consults]
+        except Exception as e:
+            raise e
+
+    def get_consults_request_nurse(self, patient_id):
+        try:
+            consults = NurseRequestConsult.query.filter_by(patient_id=patient_id).filter(
+                or_(NurseRequestConsult.status == "pending", NurseRequestConsult.status == "accepted", NurseRequestConsult.status == "in_progress")
+            ).all()
+            return [consult.to_dict() for consult in consults]
+        except Exception as e:
+            raise e
+

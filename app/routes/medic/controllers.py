@@ -541,6 +541,18 @@ def requests_care_medic_attend(request_id):
         flash(f'Erro ao buscar solicitações de atendimento, {str(e)}.', 'error')
         return jsonify({"error": True, "message": str(e)}), 500
 
+@blueprint.route('/requests_care/<int:request_id>/finalize', methods=["POST"])
+@medic_required
+def requests_care_medic_finalize(request_id):
+    try:
+        medic_service = MedicService()
+        medic_service.finish_request_consult(request_id)
+        return jsonify({"error": False, "message": "Request care finalized successfully"})
+    except Exception as e:
+        print("Requests care error: ", e)
+        flash(f'Erro ao buscar solicitações de atendimento, {str(e)}.', 'error')
+        return jsonify({"error": True, "message": str(e)}), 500
+
 @blueprint.route('/requests_care/<int:request_id>/data', methods=["GET"])
 @medic_required
 def request_care_medic_data(request_id):
@@ -564,6 +576,20 @@ def request_care_medic_accept(request_id):
         print("Requests care error: ", e)
         flash(f'Erro ao buscar solicitações de atendimento, {str(e)}.', 'error')
         return jsonify({"error": True, "message": str(e)}), 500    
+
+@blueprint.route('/requests_care/<int:request_id>/cancel', methods=["GET"])
+@medic_required
+def request_care_medic_cancel(request_id):
+    try:
+        medic_service = MedicService()
+        medic_service.cancel_request_consult(request_id, current_user.id)
+        return jsonify({"error": False, "message": "Request care canceled successfully"})
+    except Exception as e:
+        print("Requests care error: ", e)
+        flash(f'Erro ao buscar solicitações de atendimento, {str(e)}.', 'error')
+        return jsonify({"error": True, "message": str(e)}), 500
+
+
 
 
     

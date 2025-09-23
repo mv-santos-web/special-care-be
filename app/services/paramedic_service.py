@@ -22,7 +22,7 @@ class ParamedicService:
     def auth_paramedic(self, email, password):
         try:
             check_paramedic = User.query.filter_by(email=email).first()
-            if check_paramedic and check_paramedic.check_password(password):
+            if check_paramedic and check_paramedic.check_password(password) and check_paramedic.active and check_paramedic.type == "paramedic":
                 return check_paramedic
             else:
                 raise Exception("Invalid email or password")
@@ -170,10 +170,12 @@ class ParamedicService:
 
             paramedic = User.query.filter_by(id=current_user_id).first()
             self.fcm_service.notify_user(
-                paramedic.fcm_token,
+                emergency.patient.fcm_token,
                 "Emergencia aceita !",
-                "Você aceitou uma solicitação de emergencia",
-                {"update": "paramedic_emerg"}
+                f"O {paramedic.fullname} aceitou sua emergencia!",
+                {
+                    "type": "update", "target": "nurse_emergency_request"
+                }
             )
             return True
             
@@ -202,6 +204,16 @@ class ParamedicService:
             
             emergency.status = "finished"
             db.session.commit()
+            
+            paramedic = User.query.filter_by(id=emergency.paramedic_id).first()
+            self.fcm_service.notify_user(
+                emergency.patient.fcm_token,
+                "Emergencia finalizada !",
+                f"O {paramedic.fullname} finalizou sua emergencia!",
+                {
+                    "type": "update", "target": "nurse_emergency_request"
+                }
+            )
         except Exception as e:
             db.session.rollback()
             raise e
@@ -214,6 +226,16 @@ class ParamedicService:
             
             emergency.status = "arrived"
             db.session.commit()
+            
+            paramedic = User.query.filter_by(id=emergency.paramedic_id).first()
+            self.fcm_service.notify_user(
+                emergency.patient.fcm_token,
+                "Paramédico no local !",
+                f"O {paramedic.fullname} chegou a sua localização, aguarde o atendimento!",
+                {
+                    "type": "update", "target": "nurse_emergency_request"
+                }
+            )
             return True
         except Exception as e:
             db.session.rollback()

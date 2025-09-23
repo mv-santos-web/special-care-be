@@ -33,26 +33,24 @@ def auth_patient():
             return jsonify({
                 'success': True,
                 'access_token': access_token,
-                'user': {
-                    'id': patient.id,
-                    'fullname': patient.fullname,
-                    'email': patient.email,
-                    'type': 'patient'
-                }
+                'user': patient.to_dict()
             }), 200
         else:
             return jsonify({
                 'success': False,
-                'message': 'Credenciais inválidas ou usuário inativo'
+                'error': {
+                    'message': 'Credenciais inválidas ou usuário inativo'
+                }
             }), 401
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': str(e),
-            'message': str(e)
+            'error': {
+                'message': str(e)
+            }
         }), 404
 
-@blueprint.route('/patients/update_fcm_token', methods=["POST"])
+@blueprint.route('/patient/update_fcm_token', methods=["POST"])
 @jwt_required()
 def update_fcm_token():
     try:
@@ -66,7 +64,7 @@ def update_fcm_token():
         print("FCM token error: ", e)
         return jsonify({"error": True, "message": str(e)}), 500
 
-@blueprint.route("/patients/data", methods=["GET"])
+@blueprint.route("/patient/data", methods=["GET"])
 @jwt_required()
 def get_patients_data():
     try:
@@ -78,7 +76,7 @@ def get_patients_data():
         flash(f'Erro ao buscar pacientes, {str(e)}.', 'error')
         return jsonify({"error": True, "message": str(e)}), 500
 
-@blueprint.route('/patients/me', methods=['GET'])
+@blueprint.route('/patient/me', methods=['GET'])
 @jwt_required()
 def get_patient_data():
     try:
@@ -141,6 +139,7 @@ def cancel_emergency_patient(emergency_id):
 def call_emergency_patient():
     try:
         current_user_id = get_jwt_identity()
+        print("Current user id: ", current_user_id)
         patient_service = PatientService()
         patient_service.create_request_emergency(current_user_id)
         return jsonify({"error": False, "message": "Emergency called successfully"})
@@ -244,18 +243,6 @@ def get_medic_record_patient():
         print("Medic record error: ", e)
         return jsonify({"error": True, "message": str(e)}), 500
 
-@blueprint.route('/patient/request_consult_nurse/data', methods=['GET'])
-@jwt_required()
-def get_active_request_consult_nurse():
-    try:
-        current_user_id = get_jwt_identity()
-        patient_service = PatientService()
-        requests = patient_service.get_active_request_consult(current_user_id)
-        return jsonify(requests)
-    except Exception as e:
-        print("Request error: ", e)
-        return jsonify({"error": True, "message": str(e)}), 500
-
 @blueprint.route('/patient/request_consult_nurse/add', methods=['POST'])
 @jwt_required()
 def request_consult_nurse():
@@ -268,18 +255,18 @@ def request_consult_nurse():
         
         patient_service.create_request_consult(current_user_id, observations=observations)
         
-        user_data = patient_service.get_patient(current_user_id)
+        # user_data = patient_service.get_patient(current_user_id)
         
-        notification_data = {
-            'id': str(uuid.uuid4()),
-            'patient_fullname': user_data.fullname,
-            'observations': observations,
-            'status': 'pending',
-            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
+        # notification_data = {
+        #     'id': str(uuid.uuid4()),
+        #     'patient_fullname': user_data.fullname,
+        #     'observations': observations,
+        #     'status': 'pending',
+        #     'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        #     'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # }
         
-        firebase_service.save_request_care(**notification_data)
+        # firebase_service.save_request_care(**notification_data)
         
         return jsonify({"error": False, "message": "Request sent successfully"})
     except Exception as e:
@@ -300,6 +287,59 @@ def make_request_consult_nurse():
         return jsonify({"error": True, "message": str(e)}), 500
 
 
+
+# NEW NEW NEW NEW NEW NEW
+
+@blueprint.route('/patient/request_emergency_patient/data', methods=['GET'])
+@jwt_required()
+def get_emergencies_patient():
+    try:
+        current_user_id = get_jwt_identity()
+        patient_service = PatientService()
+        response = patient_service.get_emergencys_request_patient(current_user_id)
+        return jsonify(response)
+    except Exception as error:
+        print("Error:", error)
+        return jsonify({"error": str(error)})
+    
+@blueprint.route('/patient/request_emergency_nurse/data', methods=['GET'])
+@jwt_required()
+def get_emergencies_nurse():
+    try:
+        current_user_id = get_jwt_identity()
+        patient_service = PatientService()
+        response = patient_service.get_emergencys_request_nurse(current_user_id)
+        return jsonify(response)
+    except Exception as error:
+        print("Error:", error)
+        return jsonify({"error": str(error)})
+
+@blueprint.route('/patient/request_consult_patient/data', methods=['GET'])
+@jwt_required()
+def get_request_consults_patient():
+    try:
+        current_user_id = get_jwt_identity()
+        patient_service = PatientService()
+        consults = patient_service.get_consults_request_patient(current_user_id)
+        return jsonify(consults)
+    except Exception as e:
+        print("Consults error: ", e)
+        return jsonify({"error": True, "message": str(e)}), 500
+    
+@blueprint.route('patient/request_consult_nurse/data', methods=['GET'])
+@jwt_required()
+def get_request_consults_nurse():
+    try:
+        current_user_id = get_jwt_identity()
+        patient_service = PatientService()
+        consults = patient_service.get_consults_request_nurse(current_user_id)
+        return jsonify(consults)
+    except Exception as e:
+        print("Consults error: ", e)
+        return jsonify({"error": True, "message": str(e)}), 500
+
+################################
+
 @blueprint.route('/patient/nurse_emergencies_requests/data', methods=["GET"])
 @jwt_required()
 def get_emergencies_paramedic():
@@ -312,18 +352,6 @@ def get_emergencies_paramedic():
         print("Error:", error)
         return jsonify({"error": str(error)})
 
-@blueprint.route('/patient/request_emergency_nurse/data', methods=["GET"])
-@jwt_required()
-def get_emergencies_nurse():
-    try:
-        current_user_id = get_jwt_identity()
-        patient_service = PatientService()
-        response = patient_service.get_active_request_emergency(current_user_id)
-        return jsonify(response)
-    except Exception as error:
-        print("Error:", error)
-        return jsonify({"error": str(error)})
-    
 @blueprint.route('/patient/nurse_emegency_request/data', methods=['GET'])
 @jwt_required()
 def get_emergencies_nurse_data():

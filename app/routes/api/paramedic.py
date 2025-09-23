@@ -27,16 +27,11 @@ def auth_paramedic():
     try:
         paramedic = ParamedicService().auth_paramedic(email, password)
         if paramedic and paramedic.active:  
-            access_token = create_access_token(identity=str(paramedic.id))  # Changed to use just the ID
+            access_token = create_access_token(identity=str(paramedic.id))
             return jsonify({
                 'success': True,
                 'access_token': access_token,
-                'user': {
-                    'id': paramedic.id,
-                    'fullname': paramedic.fullname,
-                    'email': paramedic.email,
-                    'type': 'paramedic'
-                }
+                'user': paramedic.to_dict()
             }), 200
         else:
             return jsonify({
@@ -44,11 +39,11 @@ def auth_paramedic():
                 'message': 'Credenciais inválidas ou usuário inativo'
             }), 401
     except Exception as e:
-
         return jsonify({
             'success': False,
-            'error': str(e),
-            'message': str(e)
+            'error': {
+                'message': str(e)
+            }
         }), 404
         
 @blueprint.route("/paramedics/data", methods=["GET"])
@@ -99,7 +94,7 @@ def get_emergency_data_paramedic(emergency_id):
         print("Emergency error: ", e)
         return jsonify({"error": True, "message": str(e)}), 500
 
-  
+
 @blueprint.route('/paramedics/emergencies/<int:emergency_id>/accept', methods=['GET'])
 @jwt_required()
 def accept_emergency_paramedic(emergency_id):
@@ -111,7 +106,8 @@ def accept_emergency_paramedic(emergency_id):
     except Exception as e:
         print("Emergency error: ", e)
         return jsonify({"error": True, "message": str(e)}), 500
-    
+
+
 @blueprint.route('/paramedics/emergencies/<int:emergency_id>/finish', methods=['GET'])
 @jwt_required()
 def finish_emergency_paramedic(emergency_id):

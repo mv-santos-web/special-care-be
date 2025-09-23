@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
             'birthdate': self.birthdate.strftime('%d/%m/%Y'),
             'age': (datetime.now().year - self.birthdate.year),
             'gender': self.gender,
-            'password': self.password,
+            # 'password': self.password,
             'address': self.address,
             'create_at': self.create_at.strftime('%d/%m/%Y %H:%M:%S'),
             'update_at': self.update_at.strftime('%d/%m/%Y %H:%M:%S'),

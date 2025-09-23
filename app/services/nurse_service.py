@@ -104,14 +104,24 @@ class NurseService:
             request_id = db.session.add(nurse_request_consult)
             db.session.commit()
             
-            self.firebase_service.save_request_consult_medic(
-                id=request_id,
-                patient_fullname=patient.fullname,
-                observations=observations,
-                status="pending",
-                created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # self.firebase_service.save_request_consult_medic(
+            #     id=request_id,
+            #     patient_fullname=patient.fullname,
+            #     observations=observations,
+            #     status="pending",
+            #     created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            #     updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # )
+            
+            self.fcm_service.notify_user(
+                title="O enfermeiro encaminhou sua consulta",
+                message="Um de nossos enfermeiros encaminhou sua consulta, acesse o app para mais informações.",
+                user_id=patient.fcm_token,
+                data={
+                    "type": "update", "target": "nurse_consult_request"
+                }
             )
+            
             return nurse_request_consult.to_dict()
         except Exception as e:
             db.session.rollback()
@@ -141,6 +151,17 @@ class NurseService:
             
             db.session.add(request_sos)
             db.session.commit()
+            
+            patient = User.query.get(patient_id)
+            
+            self.fcm_service.notify_user(
+                title="O enfermeiro encaminhou sua emergência",
+                message="Um de nossos enfermeiros encaminhou sua emergência, acesse o app para mais informações.",
+                user_id=patient.fcm_token,
+                data={
+                    "type": "update", "target": "nurse_emergency_request"
+                }
+            )
             
             # self.firebase_service.save_request_emergency(
             #     id=request_sos.id,
@@ -230,7 +251,7 @@ class NurseService:
                 message="Um de nossos enfermeiros acabou de aceitar sua solicitação de consulta, acesse o app para ser atendido.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_cares'
+                    "type": "update", "target": "patient_consult_request"
                 }
             )
             return request_consult.to_dict()
@@ -254,7 +275,7 @@ class NurseService:
                 message="Um de nossos enfermeiros acabou de cancelar sua solicitação de consulta, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_cares'
+                    "type": "update", "target": "patient_consult_request"
                 }
             )
             
@@ -279,7 +300,7 @@ class NurseService:
                 message="Um de nossos enfermeiros esta prestes a atendê-lo, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_cares'
+                    "type": "update", "target": "patient_consult_request"
                 }
             )
             
@@ -304,7 +325,7 @@ class NurseService:
                 message="Um de nossos enfermeiros finalizou a consulta, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_cares'
+                    "type": "update", "target": "patient_consult_request"
                 }
             )
             
@@ -371,7 +392,7 @@ class NurseService:
                 message="Um de nossos enfermeiros aceitou sua solicitação de emergência, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_sos'
+                    "type": "update", "target": "patient_emergency_request"
                 }
             )
             
@@ -396,7 +417,7 @@ class NurseService:
                 message="Um de nossos enfermeiros acabou de cancelar sua solicitação de emergência, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_sos'
+                    "type": "update", "target": "patient_emergency_request"
                 }
             )
             
@@ -421,7 +442,7 @@ class NurseService:
                 message="Um de nossos enfermeiros esta prestes a atendê-lo, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_sos'
+                    "type": "update", "target": "patient_emergency_request"
                 }
             )
             
@@ -446,7 +467,7 @@ class NurseService:
                 message="Um de nossos enfermeiros finalizou a emergência, acesse o app para mais informações.",
                 user_id=patient.fcm_token,
                 data={
-                    'update': 'consult_sos'
+                    "type": "update", "target": "patient_emergency_request"
                 }
             )
             
@@ -466,10 +487,10 @@ class NurseService:
             for paramedic in paramedics:
                 self.fcm_service.notify_user(
                     title="Nova emergência",
-                    message="Um paciente acabou de solicitar uma emergência !",
+                    message=f"{request_emergency.patient.fullname.split(' ')[0]} acabou de solicitar uma emergência !",
                     user_id=paramedic.fcm_token,
                     data={
-                        'update': 'consult_sos'
+                        "type": "update", "target": "nurse_emergency_request"
                     }
                 )
             
