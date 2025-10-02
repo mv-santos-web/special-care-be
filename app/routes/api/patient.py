@@ -50,6 +50,18 @@ def auth_patient():
             }
         }), 404
 
+@blueprint.route('/register', methods=['POST'])
+def register_patient():
+    try:
+        data = request.get_json()
+        patient_service = PatientService()
+        patient_service.sign_up_patient(data)
+        return jsonify({"error": False, "message": "Patient registered successfully"})
+    except Exception as e:
+        print("Patient error: ", e)
+        return jsonify({"error": True, "message": str(e)}), 500
+
+
 @blueprint.route('/patient/update_fcm_token', methods=["POST"])
 @jwt_required()
 def update_fcm_token():

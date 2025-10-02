@@ -233,7 +233,7 @@ class ParamedicService:
                 "Paramédico no local !",
                 f"O {paramedic.fullname} chegou a sua localização, aguarde o atendimento!",
                 {
-                    "type": "update", "target": "nurse_emergency_request"
+                    "type": "update", "target": "nurse_emergency_request", "location_track": False
                 }
             )
             return True

@@ -12,6 +12,7 @@ from app.models.nurse_request_emergency import RequestEmergency as NurseRequestE
 
 from app.extensions import db
 from app.services.firebase_service import FirebaseService
+from app.services.fcm_service import FCMService
 
 from datetime import datetime
 from sqlalchemy import or_
@@ -23,6 +24,7 @@ class PatientService:
 
     def __init__(self):
         self.firebase_service = firebase_service
+        self.fcm_service = FCMService()
     
     def auth_patient(self, email, password):
         try:
@@ -47,7 +49,22 @@ class PatientService:
             if check_email:
                 raise Exception("Email already exists")
         
-            patient = Patient(**kwargs)
+            birthdate = kwargs.get('birthdate')
+            if not birthdate:
+                raise Exception("Birthdate is required")
+            birthdate = datetime.strptime(birthdate, "%d/%m/%Y")
+        
+            patient = Patient(
+                fullname=kwargs.get('fullname'),
+                email=kwargs.get('email'),
+                phone=kwargs.get('phone'),
+                cpf=kwargs.get('cpf'),
+                birthdate=birthdate,
+                gender=kwargs.get('gender'),
+                password=kwargs.get('password'),
+                address=kwargs.get('address'),
+                type="patient"
+            )
             patient.set_password(kwargs.get('password'))
             db.session.add(patient)
             db.session.commit()
@@ -73,7 +90,7 @@ class PatientService:
             if kwargs.get('address') and kwargs.get('address') != "":
                 patient.address = kwargs.get('address')
             if kwargs.get('birthdate') and kwargs.get('birthdate') != "":
-                patient.birthdate = kwargs.get('birthdate')
+                patient.birthdate = datetime.strptime(kwargs.get('birthdate'), "%d/%m/%Y")
             if kwargs.get('gender') and kwargs.get('gender') != "":
                 patient.gender = kwargs.get('gender')
             if kwargs.get('password') and kwargs.get('password') != "":
@@ -120,7 +137,7 @@ class PatientService:
     def create_request_consult(self, patient_id, observations):
         try:
             
-            patient = Patient.query.filter_by(id=patient_id).first()
+            patient = User.query.filter_by(id=patient_id).first()
             if not patient:
                 raise Exception("Patient not found")
             
@@ -128,6 +145,15 @@ class PatientService:
             patient_request_consult.status = "pending"
             db.session.add(patient_request_consult)
             db.session.commit()
+            
+            self.fcm_service.notify_user(
+                user_id=patient.fcm_token,
+                title="Consulta Solicitada !",
+                message="Sua consulta foi solicitada com sucesso, aguarde o enfermeiro aceitar seu chamado.",
+                data={
+                    "type": "update", "target": "patient_consult_request"
+                }
+            )
             
             # self.firebase_service.save_request_care(
             #     patient_id=patient_id,
@@ -142,7 +168,7 @@ class PatientService:
     
     def create_request_emergency(self, patient_id):
         try:
-            patient = Patient.query.filter_by(id=patient_id).first()
+            patient = User.query.filter_by(id=patient_id).first()
             if not patient:
                 raise Exception("Patient not found")
             
@@ -161,6 +187,16 @@ class PatientService:
             #     created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             #     updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # )
+            
+            self.fcm_service.notify_user(
+                user_id=patient.fcm_token,
+                title="Emergência Solicitada !",
+                message="Sua emergência foi solicitada com sucesso, aguarde o enfermeiro aceitar seu chamado.",
+                data={
+                    "type": "update", "target": "patient_emergency_request"
+                }
+            )
+            
             return request_sos.to_dict()      
         except Exception as e:
             db.session.rollback()   
@@ -224,8 +260,8 @@ class PatientService:
     def get_active_request_consult(self, patient_id):
         try:
             requests = PatientRequestConsult.query.filter_by(patient_id=patient_id).filter(
-                or_(PatientRequestConsult.status == "pending", PatientRequestConsult.status == "accepted", PatientRequestConsult.status == "canceled", PatientRequestConsult.status == "finished")
-            ).all()
+                or_(PatientRequestConsult.status == "pending", PatientRequestConsult.status == "accepted")
+            ).order_by(PatientRequestConsult.created_at.desc()).all()
             return [request.to_dict() for request in requests]
         except Exception as e:
             raise e
@@ -293,7 +329,7 @@ class PatientService:
         try:
             emergencies = PatientRequestEmergency.query.filter_by(patient_id=patient_id).filter(
                 or_(PatientRequestEmergency.status == "pending", PatientRequestEmergency.status == "accepted", PatientRequestEmergency.status == "in_place", PatientRequestEmergency.status == "arrived")
-            ).all()
+            ).order_by(PatientRequestEmergency.created_at.desc()).all()
             return [emergency.to_dict() for emergency in emergencies]
         except Exception as e:
             raise e
@@ -302,7 +338,7 @@ class PatientService:
         try:
             emergencies = NurseRequestEmergency.query.filter_by(patient_id=patient_id).filter(
                 or_(NurseRequestEmergency.status == "pending", NurseRequestEmergency.status == "accepted", NurseRequestEmergency.status == "in_place", NurseRequestEmergency.status == "arrived")
-            ).all()
+            ).order_by(NurseRequestEmergency.created_at.desc()).all()
             print(emergencies)
             return [emergency.to_dict() for emergency in emergencies]
         except Exception as e:
@@ -321,7 +357,7 @@ class PatientService:
         try:
             consults = NurseRequestConsult.query.filter_by(patient_id=patient_id).filter(
                 or_(NurseRequestConsult.status == "pending", NurseRequestConsult.status == "accepted", NurseRequestConsult.status == "in_progress")
-            ).all()
+            ).order_by(NurseRequestConsult.created_at.desc()).all()
             return [consult.to_dict() for consult in consults]
         except Exception as e:
             raise e
